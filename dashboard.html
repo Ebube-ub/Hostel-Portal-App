@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block body_class %}dashboardpage{% endblock %}
+
+{% block head %}
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+{% endblock %}
+
+{% block body %}
+<section class="dashboardheader">
+<div class="header">
+    <h1>Welcome to Your Dashboard, {{ current_user.username }}!</h1>
+    <div class="logout-container">
+        <a href="{{ url_for('logout') }}" class="btn logout-btn">Log Out</a>
+    </div>
+</div>
+</section>
+
+{% if user.selected_room %}
+  <p class="info success">You selected: {{ user.selected_room }}</p>
+  <form method="POST" action="{{ url_for('cancel_selection') }}">
+    <button type="submit" class="btn cancel">Cancel Selection</button>
+  </form>
+{% elif error %}
+  <p class="info error">{{ error }}</p>
+{% else %}
+  <p class="info">Select a room below:</p>
+{% endif %}
+
+<form method="POST">
+<div class="room-grid">
+    <div class="room-card">
+     <div class="room-header">
+    <h3 class="room-name">Room 101</h3>
+    <p class="room-capacity">Capacity: 1</p>
+  </div>
+
+  
+
+  <button
+      type="submit"
+      name="room_name"
+      value="Room101"
+      class="room-btn {% if user.selected_room == 'Room101' %}selected{% endif %}"
+    >
+    Book Room
+    </button>
+  </div>
+
+   <div id="box2">
+    <div class="room-header">
+      <h1>Room 102</h1> 
+    </div>
+    <p>Private Class</p>
+    <button
+      type="submit"
+      name="room_name"
+      value="Room102"
+      class="room-btn {% if user.selected_room == 'Room102' %}selected{% endif %}"
+    >
+    Book Room
+      </button>
+    </div>
+
+    <div id="box3">
+      <h1>Room 103</h1>
+      <p>Private Class</p>
+    
+    <button
+      type="submit"
+      name="room_name"
+      value="Room103"
+      class="room-btn {% if user.selected_room == 'Room103' %}selected{% endif %}"
+    >
+    Book Room
+    </button>
+    </div>
+
+    <div id="box4">
+      <h1>Room 104</h1>
+      <p>Private Class</p>
+    
+    <button
+      type="submit"
+      name="room_name"
+      value="Room104"
+      class="room-btn {% if user.selected_room == 'Room104' %}selected{% endif %}"
+    >
+    Book Room
+    </button>
+    </div>
+
+
+    <div id="box5">
+      <h1>Room 105</h1>
+      <p>Private Class</p>
+    
+    <button
+      type="submit"
+      name="room_name"
+      value="Room105"
+      class="room-btn {% if user.selected_room == 'Room105' %}selected{% endif %}"
+    >
+    Book Room
+    </button>
+    </div>
+
+
+    <div id="box6">
+     <h1>Room 106</h1>
+      <p>Private Class</p>
+    
+    <button
+      type="submit"
+      name="room_name"
+      value="Room106"
+      class="room-btn {% if user.selected_room == 'Room106' %}selected{% endif %}"
+    >
+    Book Room
+    </button>
+    </div>
+
+
+    <div id="box7">
+      <h1>Room 107</h1>
+      <p>Private Class</p>
+    
+    <button
+      type="submit"
+      name="room_name"
+      value="Room107"
+      class="room-btn {% if user.selected_room == 'Room107' %}selected{% endif %}"
+    >
+    Book Room
+    </button>
+    </div>
+
+    <div id="box8">
+      <h1>Room 108</h1>
+      <p>Private Class</p>
+    
+    <button
+      type="submit"
+      name="room_name"
+      value="Room108"
+      class="room-btn {% if user.selected_room == 'Room108' %}selected{% endif %}"
+    >
+    Book Room
+    </button>
+    </div>
+
+
+    <div id="box9">
+      <h1>Room 109</h1>
+      <p>Private Class</p>
+    
+    <button
+      type="submit"
+      name="room_name"
+      value="Room109"
+      class="room-btn {% if user.selected_room == 'Room109' %}selected{% endif %}"
+    >
+    Book Room
+    </button>
+    </div>
+
+    <div id="box10">
+      <h1>Room 110</h1>
+      <p>Private Class</p>
+    
+    <button
+      type="submit"
+      name="room_name"
+      value="Room110"
+      class="room-btn {% if user.selected_room == 'Room110' %}selected{% endif %}"
+    >
+    Book Room
+    </button>
+    </div>
+    <!-- Add more rooms here -->
+  </div>
+</form>
+
+
+
+
+{% endblock %}
+
+

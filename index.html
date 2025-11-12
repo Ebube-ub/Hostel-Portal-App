@@ -1,0 +1,138 @@
+{% extends 'base.html'%}
+
+
+{% block head %} 
+<title>School House Accomodation</title>
+    <script src="https://kit.fontawesome.com/586d3fc22b.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="main.css" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+{% endblock %}
+
+
+{% block body %}
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<div class="header-image"> 
+  <div class="center-buttons">
+  <a href="{{ url_for('login') }}" class="btn login-btn">Login</a>
+  <a href="{{ url_for('signup') }}" class="btn signup-btn">Sign Up</a>
+  </div>
+
+
+
+
+<h1> School House Accommodation</h1>
+<p> Reserve your room for the academic semester</p>
+<a href="{{ url_for('login') }}" class="br book-room">Book Your Room</a>
+</div>
+
+{% for message in get_flashed_messages() %} 
+    <div class="alert alert-primary alert-dismissible fade show" role="alert"> 
+      {{ message }} 
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div> 
+  {% endfor %}
+
+
+<section class="info">
+<h2> School Hostel Facilities</h2>
+<div class="Facilities">
+<div id="box1"> 
+    <h3>On-Campus Location</h3>
+    <p class="p2">Located within school grounds for easy access to classes</p>
+</div>
+
+  
+
+
+<div id="box2"> 
+    <h3>Supervised Environment</h3>
+    <p class="p3">Hostel wardens and 24/7 security for student safety</p>
+</div>
+
+<div id="box3"> 
+    <h4>Study-Friendly</h4>
+    <p class="p4">Free WiFi and quiet study areas for academic success</p>
+</div>
+</div>
+</section>
+
+<section class="room-type">
+<h5> Choose Your Room Type</h5>
+<div class="room-grid">
+  <div id="box4">
+    <h6><i class="fa-solid fa-bed"></i>Private Room</h6>
+    <p class="p6">Ideal for focused study and personal space </p6>
+    <ul class="star-list"> 
+        <li><i class="fa-regular fa-star"></i>1 student per room</li>
+        <li><i class="fa-regular fa-star"></i>Study desk and chair</li>
+        <li><i class="fa-regular fa-star"></i>Wardrobe and storage</li>
+    </ul>
+  </div>
+
+
+  <div id="box5">
+    <h2 class="h7"><i class="fa-solid fa-bed"></i>Shared Room</h>
+    <p class="p7">Affordable option with a roommate</p>
+    <ul class="star"> 
+        <li><i class="fa-regular fa-star"></i>2 students per room</li>
+        <li><i class="fa-regular fa-star"></i>Shared study area</li>
+        <li><i class="fa-regular fa-star"></i>Shared closet space</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+
+<h2 class="h8">Hostel Ammenities</h2>
+<div class="amenities-grid">
+  <div class="amenity">
+    <span class="icon"><i class="fa-solid fa-wifi"></i></span>
+    <span class="amenity-text">Free WiFi</span>
+  </div>
+  <div class="amenity">
+    <span class="icon"><i class="fa-solid fa-bed"></i></span>
+    <span class="amenity-text">Comfortable Beds</span>
+  </div>
+  <div class="amenity">
+    <span class="icon"><i class="fa-solid fa-utensils"></i></span>
+    <span class="amenity-text">Cafeteria</span>
+  </div>
+  <div class="amenity">
+    <span class="icon"><i class="fa-solid fa-book"></i></span>
+    <span class="amenity-text">Study Area</span>
+  </div>
+  <div class="amenity">
+    <span class="icon"><i class="fa-solid fa-broom"></i></span>
+    <span class="amenity-text">Daily Cleaning/Laundry Services</span>
+  </div>
+    <div class="amenity">
+        <span class="icon"><i class="fa-solid fa-shield-halved"></i></span>
+        <span class="amenity-text">24/7 Security</span>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-container">
+    <div class="footer-section">
+      <h3 class="h2">School Hostel</h3>
+      <p2 class="p2">Safe and comfortable accommodation for our students</p2>
+    </div>
+
+    <div class="footer-section">
+      <h3 class="h3">Contact</h3>
+      <p2 class="p3">Email: <a href="mailto:hostel@school.edu">hostel@school.edu</a></p2>
+      <p2 class="p7">Phone: (555) 123-4567</p2>
+    </div>
+
+    <div class="footer-section">
+      <h3 class="h4">Office Hours</h3>
+      <p2 class="p4">Monday - Friday: 8AM - 4PM</p2>
+      <p2 class="p5">Saturday: 9AM - 12PM</p2>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p2 class="p6">© 2025 School Hostel. All rights reserved.</p>
+  </div>
+</footer>
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block body_class %}loginpage{% endblock %}
+
+{% block head %}
+<title>LOGIN</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+{% endblock %}
+
+
+{% block body %}
+
+<div class="login_content">
+        <h1>Login</h1>
+        <form method="POST" action="">
+         {{ form.hidden_tag() }}
+         {{ form.username}}
+         {{ form.password}}
+         {{ form.submit}}
+    </div>
+    <a href="{{ url_for('signup') }}" class="btn signup-btn">Don't have an account? Sign Up</a>
+
+{% if error %}
+    <div class="error">{{ error }}</div>
+{% endif %}
+{% endblock %}

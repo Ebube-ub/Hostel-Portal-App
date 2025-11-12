@@ -1,0 +1,842 @@
+body{
+    background-color:#fbf6f3;
+    margin:0;
+    padding:0;
+}
+
+
+.header-image {
+    width: 100%;
+    height: 90vh;
+    background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('hostelmainpage3.jpeg');
+    background-blend-mode: overlay;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+}
+
+.info{
+    background-color:#fbf6f3;
+    align-items: center;
+    
+}
+
+.Facilities{
+  display: flex;
+  justify-content: space-between; // spaces boxes evenly
+  background-color: #fbf6f3;
+   align-items: start;
+   gap: 30px;
+  flex-wrap: wrap;
+  padding: 40px 60px;
+  background-color: #fbf6f3;
+
+
+
+   div {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  max-width: 300px;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  }
+}
+
+.room-grid{
+    display: flex;
+  justify-content: space-between; // spaces boxes evenly
+   align-items: start;
+   gap: 30px;
+  flex-wrap: wrap;
+  padding: 40px 60px;
+
+
+
+   div {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  max-width: 500px;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  }
+}
+
+.room-type{
+    background-color: #fbfaf9;
+    width: 100%;
+    padding: 5px 10px;       /* Increase top/bottom padding for more spread */
+    margin: 40px 0;        /* Optional: add space above/below */
+}
+
+
+h1{
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    font-size: 70px;
+    margin-top: 5px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    
+
+
+   
+}
+
+p{
+    color: white;
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 0px;
+    font-weight: lighter;
+    margin-top: -10px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+
+   
+}
+
+.book-room {
+  background-color: #e03e1b;
+  color: white;
+  margin-top: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #ff4b2b;
+  }
+}
+
+h2{ /* facilities*/
+    text-align: center;
+    margin-right: px;
+    font-size: 50px;
+    margin-top: 15px;
+    color:black
+}
+
+#box1{
+    width: 250px;
+    height: 150px;
+    border: 2px solid #f3f0ed;
+    background-color: white;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+    display: inline-block;
+}
+
+h3{
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.p2{
+    font-size: 15px;
+    color:black;
+    font-weight: bold;
+    margin-top: 30px;
+    font-weight: lighter;
+    
+}
+
+#box2{
+    width: 250px;
+    height: 150px;
+    border: 2px solid #f3f0ed;
+    background-color: white;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+    display: inline-block;
+
+    .p3{
+    font-size: 15px;
+    color: black;
+    font-weight: lighter;
+    margin-top: 20px;
+}
+
+
+h3{
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 0px;
+    color: black;
+}
+}
+
+
+#box3{
+    width: 250px;
+    height: 150px;
+    border: 2px solid #f3f0ed;
+    background-color: white;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+    display: inline-block;
+}
+
+h4{
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 10px;
+    color: black;
+}
+
+.p4{
+    font-size: 15px;
+    color: black;
+    font-weight: bold;
+    margin-top: 20px;
+    font-weight: lighter;
+}
+
+h5{
+    text-align: center;
+    font-size: 40px;
+    margin-top: 20px;
+    color:black
+}
+
+#box4{    /* private room*/
+    width: 450px;
+    height: 200px;
+    border: 2px solid #f3f0ed;
+    background-color: white;
+    border-radius: 10px;
+    text-align: left;
+    padding: 10px;
+    
+}
+
+h6{
+  font-size: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.p6{     
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-right: 100px;
+    text-align: left;
+    
+
+}
+
+.star-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.star-list li {
+    font-size: 18px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    font-weight: lighter;
+}
+.star-list li i {
+    color: gold;
+    margin-right: 15px;
+}
+
+i {
+  color: orangered; /* bed icon color */
+  margin-right: 10px;
+}
+
+
+#box5{  /* shared room*/
+    width: 400px;
+    height: 200px;
+    border: 2px solid #f3f0ed;
+    background-color: white;
+    border-radius: 10px;
+    text-align: left;
+    padding: 10px;
+}
+
+.h7{  
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 500px;
+    margin-left: 10px;
+    margin-top: 0px;
+    text-align: left;
+}
+
+.p7{  
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    margin-right: 12px;
+    text-align: left;
+
+}
+
+.star {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.star li {
+    font-size: 18px;
+    margin-bottom: 10px;
+    margin-right: 1px;
+    font-weight: lighter;
+    text-align: left;
+}
+.star  li i {
+    color: gold;
+    margin-right: 15px;
+}
+
+
+.h8{  /*ammenities*/
+    font-size: 30px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 50px;
+    margin-left: 30px;
+    text-align: center;
+
+
+}
+
+.amenities-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 50px 100px; /* row gap, column gap */
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px 0;
+}
+
+.amenity {
+    display: flex;
+    margin-right: 0px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 10px;
+    padding: 2px 3px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    
+}
+
+.amenity .icon {
+    font-size: 3.0em;
+    margin-bottom: 10px;
+    color: orangered;
+    text-align: center;
+}
+
+.amenity-text {
+    font-size: 1.5em;
+    color: #222;
+    font-weight: 550;
+    text-align: center;
+}
+
+footer {
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 30px 0;
+  font-family: Arial, sans-serif;
+}
+
+.footer-container {
+  display: flex;
+  justify-content:center;
+  text-align: center;
+  flex-wrap: wrap;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.footer-section {
+  width: 300px;
+  margin-bottom: 20px;
+}
+
+.footer-section h3 {
+  color: #333;
+  margin-bottom: 10px;
+  margin-left: 30px;
+  font-size: 40px;
+}
+
+.footer-section .p2 {
+ font-size: 20px;
+  margin-left: 10px ;
+  line-height: 1.6;
+}
+
+.footer-section a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.footer-section a:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 15px;
+  border-top: 1px solid #ccc;
+  font-size: 10px;
+  color: #666;
+}
+
+.footer section .h2{
+    text-align: center;
+    font-size: 10px;
+    margin-top: 50px;
+    color:black;
+}
+
+.footer section .h3{
+    font-size: 70px;
+    font-weight: bold;
+    margin-top: 10px;
+
+}
+
+.footer section .p3{
+    font-size: 15px;
+    margin-left: 80px;
+    font-weight: bold;
+    margin-top: 20px;
+    font-weight: lighter;
+}
+
+.footer-section .p7{
+    display: block;
+    font-size: 15px;
+    margin-left: 70px;
+    line-height: 0.6;
+}
+
+.footer-section .h4{
+    font-size: 40px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px;
+
+}
+
+.footer-section .p4{
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+    font-weight: lighter;
+}
+
+.footer-section .p5{
+    display: block;
+    text-align: center;
+    font-size: 20px;
+    margin-top: 20px;
+    color:black
+}
+
+.center-buttons {
+  margin-bottom: 200px;
+  display: flex;
+  margin-left: 1050px;
+  gap: 15px;
+}
+
+.btn {
+  padding: 10px 25px;
+  border: none;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.login-btn {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.login-btn:hover {
+  background-color: white;
+  color: black;
+}
+
+.signup-btn {
+  background-color: #ff4b2b;
+  color: white;
+}
+
+.signup-btn:hover {
+  background-color: #e03e1b;
+}
+
+
+body.loginpage {
+  width: 500px;
+  height: 300px;
+  margin: 80px auto;
+  background: #fff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+
+  h1 {
+    font-size: 2rem;
+    color: #e03e1b; // purple accent
+    margin-bottom: 25px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      font-size: 15px;
+      transition: 0.3s;
+
+      &:focus {
+        border-color: #e03e1b;
+        box-shadow: 0 0 5px #ff4b2b(122, 66, 244, 0.3);
+      }
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color:  #ff4b2b;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+
+      &:hover {
+        background-color:#e03e1b;
+      }
+
+    }
+  }
+  /* General button styling */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: 600;
+
+  transition: all 0.3s ease;
+}
+
+/* Specific style for the sign-up link */
+.signup-btn {
+  background-color: #ff4b2b; 
+  color: white;
+
+  &:hover {
+    background-color:  #e03e1b; 
+    transform: translateY(-2px);
+  }
+}
+
+
+}
+
+body.signuppage {
+  width: 500px;
+  height: 330px;
+  margin: 80px auto;
+  background: #fff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+
+  h1 {
+    font-size: 2rem;
+    color: #e03e1b; // purple accent
+    margin-bottom: 25px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      font-size: 15px;
+      transition: 0.3s;
+
+      &:focus {
+        border-color: #e03e1b;
+        box-shadow: 0 0 5px #ff4b2b(122, 66, 244, 0.3);
+      }
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color:  #ff4b2b;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+
+      &:hover {
+        background-color:#e03e1b;
+      }
+
+    }
+  }
+  /* General button styling */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: 600;
+
+  transition: all 0.3s ease;
+}
+
+/* Specific style for the sign-up link */
+.login-btn {
+  background-color: #ff4b2b; 
+  color: white;
+
+  &:hover {
+    background-color:  #e03e1b; 
+    transform: translateY(-2px);
+  }
+}
+
+}
+
+
+
+body.dashboardpage {
+  *{
+    text-decoration: none;
+  }
+ 
+
+  .dashboardheader {
+    margin-bottom: 30px;
+    background-color: #ff4b2b;
+
+    
+
+    p {
+      font-size: 1.2rem;
+      color: #666;
+    }
+
+    
+
+    div.header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+
+      h1 {
+      font-size: 2.5rem;
+      color:white;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    }
+  }
+
+  // Messages
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); // 3 rooms per row
+  gap: 1rem;
+
+
+ .room-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px;
+  width: 280px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .room-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .room-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .status {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: capitalize;
+
+      &.occupied {
+        background-color: #f8d7da;
+        color: #a94442;
+      }
+
+      &.available {
+        background-color: #d4edda;
+        color: #155724;
+      }
+    }
+  }
+
+  .room-capacity {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 15px;
+  }
+
+  .room-btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 600;
+
+    &.unavailable {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    &.available {
+      background-color: #28a745;
+      color: white;
+    }
+  }
+}
+
+
+ #box2{
+  .room-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  
+
+  h1{
+    font-size: 20px;
+    color:#666
+  }   
+ }
+  p{
+    
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 0px;
+  }
+ }
+
+
+ #box3{
+
+ }
+}
+
+.room-btn {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f3e8ff;
+  }
+
+  &.selected {
+    background-color: #6b46c1;
+    color: #fff;
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+  }
