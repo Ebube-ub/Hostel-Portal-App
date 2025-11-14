@@ -4,24 +4,41 @@
 
 {% block head %}
     <title>Dashboard</title>
+    <script src="https://kit.fontawesome.com/586d3fc22b.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 {% endblock %}
 
 {% block body %}
-<section class="dashboardheader">
-<div class="header">
-    <h1>Welcome to Your Dashboard, {{ current_user.username }}!</h1>
-    <div class="logout-container">
-        <a href="{{ url_for('logout') }}" class="btn logout-btn">Log Out</a>
+<a href="{{ url_for('index') }}" class="btn btn-home">Back to Home</a>
+
+
+{% for message in get_flashed_messages() %}
+  <div class="alert-container">
+    <input type="checkbox" id="close{{ loop.index }}" class="close-toggle">
+    <div class="alert alert-primary fade show">
+      {{ message }}
+      <label for="close{{ loop.index }}" class="btn-close" aria-label="Close"></label>
     </div>
-</div>
-</section>
+  </div>
+{% endfor %}
 
 {% if user.selected_room %}
-  <p class="info success">You selected: {{ user.selected_room }}</p>
+  <p class="info-success">You selected: {{ user.selected_room }}</p>
   <form method="POST" action="{{ url_for('cancel_selection') }}">
-    <button type="submit" class="btn cancel">Cancel Selection</button>
+    <button type="submit" class="btn-cancel">Cancel Selection</button>
   </form>
+
+    {% for message in get_flashed_messages() %}
+      <div class="alert-container">
+      <input type="checkbox" id="close{{ loop.index }}" class="close-toggle">
+      <div class="alert alert-primary fade show">
+        {{ message }}
+        <label for="close{{ loop.index }}" class="btn-close" aria-label="Close"></label>
+      </div>
+    </div>
+{% endfor %}
+
+
 {% elif error %}
   <p class="info error">{{ error }}</p>
 {% else %}
@@ -30,153 +47,147 @@
 
 <form method="POST">
 <div class="room-grid">
+   <!-- Room 101 -->
     <div class="room-card">
-     <div class="room-header">
-    <h3 class="room-name">Room 101</h3>
-    <p class="room-capacity">Capacity: 1</p>
-  </div>
-
-  
-
-  <button
-      type="submit"
-      name="room_name"
-      value="Room101"
-      class="room-btn {% if user.selected_room == 'Room101' %}selected{% endif %}"
-    >
-    Book Room
-    </button>
-  </div>
-
-   <div id="box2">
-    <div class="room-header">
-      <h1>Room 102</h1> 
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 101</h3>
+      <p class="room-type"><i class="fa-solid fa-user-lock"></i>Private</p>
+      {% if 'Room101' in taken_rooms and current_user.selected_room != 'Room101' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room101' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room101" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
     </div>
-    <p>Private Class</p>
-    <button
-      type="submit"
-      name="room_name"
-      value="Room102"
-      class="room-btn {% if user.selected_room == 'Room102' %}selected{% endif %}"
-    >
-    Book Room
-      </button>
-    </div>
-
-    <div id="box3">
-      <h1>Room 103</h1>
-      <p>Private Class</p>
     
-    <button
-      type="submit"
-      name="room_name"
-      value="Room103"
-      class="room-btn {% if user.selected_room == 'Room103' %}selected{% endif %}"
-    >
-    Book Room
-    </button>
+
+   <div class="room-card">
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 102</h3>
+      <p class="room-type"><i class="fa-solid fa-user-lock"></i>Private</p>
+      {% if 'Room102' in taken_rooms and current_user.selected_room != 'Room102' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room102' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room102" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
     </div>
 
-    <div id="box4">
-      <h1>Room 104</h1>
-      <p>Private Class</p>
-    
-    <button
-      type="submit"
-      name="room_name"
-      value="Room104"
-      class="room-btn {% if user.selected_room == 'Room104' %}selected{% endif %}"
-    >
-    Book Room
-    </button>
+    <div class="room-card">
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 103</h3>
+      <p class="room-type"><i class="fa-solid fa-user-lock"></i>Private</p>
+      {% if 'Room103' in taken_rooms and current_user.selected_room != 'Room103' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room103' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room103" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
     </div>
 
-
-    <div id="box5">
-      <h1>Room 105</h1>
-      <p>Private Class</p>
-    
-    <button
-      type="submit"
-      name="room_name"
-      value="Room105"
-      class="room-btn {% if user.selected_room == 'Room105' %}selected{% endif %}"
-    >
-    Book Room
-    </button>
-    </div>
-
-
-    <div id="box6">
-     <h1>Room 106</h1>
-      <p>Private Class</p>
-    
-    <button
-      type="submit"
-      name="room_name"
-      value="Room106"
-      class="room-btn {% if user.selected_room == 'Room106' %}selected{% endif %}"
-    >
-    Book Room
-    </button>
+   <div class="room-card">
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 104</h3>
+      <p class="room-type"><i class="fa-solid fa-user-lock"></i>Private</p>
+      {% if 'Room104' in taken_rooms and current_user.selected_room != 'Room104' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room104' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room104" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
     </div>
 
 
-    <div id="box7">
-      <h1>Room 107</h1>
-      <p>Private Class</p>
-    
-    <button
-      type="submit"
-      name="room_name"
-      value="Room107"
-      class="room-btn {% if user.selected_room == 'Room107' %}selected{% endif %}"
-    >
-    Book Room
-    </button>
+   <div class="room-card">
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 105</h3>
+      <p class="room-type"><i class="fa-solid fa-user-group"></i>Shared</p>
+      {% if 'Room105' in taken_rooms and current_user.selected_room != 'Room105' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room105' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room105" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
     </div>
 
-    <div id="box8">
-      <h1>Room 108</h1>
-      <p>Private Class</p>
-    
-    <button
-      type="submit"
-      name="room_name"
-      value="Room108"
-      class="room-btn {% if user.selected_room == 'Room108' %}selected{% endif %}"
-    >
-    Book Room
-    </button>
+    <div class="room-card">
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 106</h3>
+      <p class="room-type"><i class="fa-solid fa-user-lock"></i>Private</p>
+      {% if 'Room106' in taken_rooms and current_user.selected_room != 'Room106' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room106' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room106" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
     </div>
 
-
-    <div id="box9">
-      <h1>Room 109</h1>
-      <p>Private Class</p>
-    
-    <button
-      type="submit"
-      name="room_name"
-      value="Room109"
-      class="room-btn {% if user.selected_room == 'Room109' %}selected{% endif %}"
-    >
-    Book Room
-    </button>
+    <div class="room-card">
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 107</h3>
+      <p class="room-type"><i class="fa-solid fa-user-group"></i>Shared</p>
+      {% if 'Room107' in taken_rooms and current_user.selected_room != 'Room107' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room107' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room107" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
     </div>
 
-    <div id="box10">
-      <h1>Room 110</h1>
-      <p>Private Class</p>
-    
-    <button
-      type="submit"
-      name="room_name"
-      value="Room110"
-      class="room-btn {% if user.selected_room == 'Room110' %}selected{% endif %}"
-    >
-    Book Room
-    </button>
+    <div class="room-card">
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 108</h3>
+      <p class="room-type"><i class="fa-solid fa-user-group"></i>Shared</p>
+      {% if 'Room108' in taken_rooms and current_user.selected_room != 'Room108' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room108' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room108" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
+    </div>
+
+    <div class="room-card">
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 109</h3>
+      <p class="room-type"><i class="fa-solid fa-user-group"></i>Shared</p>
+      {% if 'Room109' in taken_rooms and current_user.selected_room != 'Room109' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room109' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room109" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
+    </div>
+
+    <div class="room-card">
+      <h3 class="room-name"><i class="fa-solid fa-house"></i>Room 110</h3>
+      <p class="room-type"><i class="fa-solid fa-user-lock"></i>Private</p>
+      {% if 'Room110' in taken_rooms and current_user.selected_room != 'Room110' %}
+        <button class="room-btn unavailable" disabled>Unavailable</button>
+      {% elif current_user.selected_room == 'Room110' %}
+        <button class="room-btn booked" disabled>Booked</button>
+      {% else %}
+        <button type="submit" name="room_name" value="Room110" class="room-btn available">
+          Book Room
+        </button>
+      {% endif %}
     </div>
     <!-- Add more rooms here -->
   </div>
