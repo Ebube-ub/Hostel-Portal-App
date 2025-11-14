@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block body_class %}bookingspage{% endblock %}
+
+{% block head %}
+<title>My Bookings</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+{% endblock %}
+
+
+{% block body %}
+
+{% for message in get_flashed_messages() %}
+  <div class="alert-container">
+    <input type="checkbox" id="close{{ loop.index }}" class="close-toggle">
+    <div class="alert alert-primary fade show">
+      {{ message }}
+      <label for="close{{ loop.index }}" class="btn-close" aria-label="Close"></label>
+    </div>
+  </div>
+{% endfor %}
+
+
+<h1>welcome {{ current_user.username }}!</h1>
+<div class="signup_content">
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    {{ form.complaint }}
+    {{ form.submit}}
+</form>
+</div>
+<div class ='logout'>
+    <a href="{{ url_for('logout') }}" class="btn logout">Log Out</a>
+</div>
+{% endblock %}
