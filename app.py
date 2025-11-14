@@ -27,46 +27,49 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
     selected_room = db.Column(db.String(10))  # e.g., Room101
+    complaint = db.Column(db.String(200), unique=True, nullable=True)
 
 
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(150))
 
 
 
 
-
+class ComplaintForm(FlaskForm):
+    complaint = StringField(validators=[Length(min=4, max=220)], render_kw={"placeholder": "Any Complaint?"})
+    submit = SubmitField('Submit Complaint')
 
 
 class RegisterForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
     email = StringField(validators=[InputRequired(), Email(message='Invalid email'), Length(max=150)], render_kw={"placeholder": "Email"})
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
     submit = SubmitField('Sign Up')
 
-    def validate_username(self, username):
-        existing_user_username = User.query.filter_by(username=username.data).first()
+    def validate_email(self, email):
+        existing_user_email = User.query.filter_by(email=email.data).first()
 
 
-        if existing_user_username:
-            raise ValidationError('That username already exists. Please choose a different one.')
+        if existing_user_email:
+            raise ValidationError('That user already exists. Please choose a different one.')
 
 
 class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+    email = StringField(validators=[InputRequired(), Email(message='Invalid email'), Length(max=150)], render_kw={"placeholder": "Email"})
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
     submit = SubmitField('Login')
 
 
-    def validate_username(self, username):
-        existing_user_username = User.query.filter_by(username=username.data).first()
-        if existing_user_username:
-            raise ValidationError('That username already exists. Please choose a different one.')
+    def validate_email(self, email):
+        existing_user_email = User.query.filter_by(email=email.data).first()
+        if existing_user_email:
+            flash('That user already exists. Please choose a different one.')
+            raise ValidationError('That user already exists. Please choose a different one.')
 
 
 
@@ -81,21 +84,23 @@ def login():
     error = None
 
     if True: #form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
         if user:
             if bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user)
                 return redirect(url_for('dashboard'))
                 
             else:
+                flash('Invalid username or password')
                 error = 'Invalid username or password'
-    return render_template('login.html', form=form, error=error)
+    return render_template('login.html', form=form, error=error, from_signup=True)
 
 
 
 @app.route('/dashboard', methods=['GET', 'POST'])  
 @login_required  
-def dashboard():  
+def dashboard():
+    
     rooms = Room.query.all()  # Fetch all rooms  
     # Get list of room names already selected by some user
     taken_rooms = [u.selected_room for u in User.query.filter(User.selected_room.isnot(None)).all()]  
@@ -109,6 +114,7 @@ def dashboard():
         else:  
             current_user.selected_room = selected_room  # assign room to user  
             db.session.commit()  
+            flash('Room successfully picked')
             return redirect(url_for('dashboard'))  
 
     # Render dashboard passing user, rooms, taken list, error if any
@@ -131,11 +137,13 @@ def signup():
 
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        new_user = User(email=form.email.data, password=hashed_password)
 
         db.session.add(new_user)
         db.session.commit()
-        return redirect(url_for('login'))
+        flash('Signed Up Successfuly')
+        return redirect(url_for('signup'))
+       
     
     return render_template('signup.html', form=form)
 
@@ -153,8 +161,20 @@ def select_room(room_number):
 def cancel_selection():
     current_user.selected_room = None  # Clear the user's selection
     db.session.commit()                # Save changes to the database
+    flash('Booking canceled')
     return redirect(url_for('dashboard'))
 
+@app.route('/bookings', methods=['GET', 'POST'])
+@login_required
+def bookings():
+    form = ComplaintForm()
+    if form.validate_on_submit():
+        current_user.complaint = form.complaint.data
+        db.session.commit()
+        flash('Complaint Submitted Successfully')
+        return redirect(url_for('bookings'))
+
+    return render_template('bookings.html',form=form)
 
 if __name__ == "__main__":
     with app.app_context():
