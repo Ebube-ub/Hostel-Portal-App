@@ -81,7 +81,7 @@ h1{
     text-align: center;
     font-weight: bold;
     font-size: 70px;
-    margin-top: 5px;
+    margin-top: 220px;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     
 
@@ -468,7 +468,7 @@ footer {
 }
 
 .center-buttons {
-  margin-bottom: 200px;
+  margin-bottom: 5px;
   display: flex;
   margin-left: 1050px;
   gap: 15px;
@@ -504,8 +504,85 @@ footer {
   background-color: #e03e1b;
 }
 
+.logout-btn {
+  margin-left: 40px;
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.logout-btn:hover {
+  background-color: white;
+  color: black;
+}
+
+
+.alert-container {
+  margin-left: 1050px;
+  position: fixed;         /* Fix it relative to the viewport */
+  margin-bottom: 150px;               /* Distance from top */       
+  z-index: 9999;           /* Make sure it stays above everything else */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;   /* Stack multiple alerts downward, aligned right */
+  gap: 10px;   
+}
+
+.close-toggle {
+  display: none;
+}
+
+.alert {
+  position: relative;
+  padding: 1rem 1.5rem;
+  margin: 1rem 0;
+  border: 2px solid black;
+  border-radius: 10px;
+  background-color: white;
+  color: black;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+  display: flex;
+  justify-content: space-between;
+  opacity: 1;
+}
+
+.btn-close {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: black;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-close::after {
+  content: "×";
+  margin-left: 10px;
+  margin-top:10px;
+}
+
+.btn-close:hover {
+  transform: scale(1.2);
+  opacity: 0.6;
+}
+
+/* When checkbox is checked, hide the alert */
+.close-toggle:checked + .alert {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+  transition: all 0.4s ease;
+  display: none;
+}
+
 
 body.loginpage {
+  *{
+    text-decoration: none;
+  }
   width: 500px;
   height: 300px;
   margin: 80px auto;
@@ -516,6 +593,7 @@ body.loginpage {
   text-align: center;
 
   h1 {
+    margin-top: 15px;
     font-size: 2rem;
     color: #e03e1b; // purple accent
     margin-bottom: 25px;
@@ -569,7 +647,6 @@ body.loginpage {
   border-radius: 8px;
   font-size: 20px;
   font-weight: 600;
-
   transition: all 0.3s ease;
 }
 
@@ -588,8 +665,11 @@ body.loginpage {
 }
 
 body.signuppage {
+  *{
+    text-decoration: none;
+  }
   width: 500px;
-  height: 330px;
+  height: 400px;
   margin: 80px auto;
   background: #fff;
   padding: 40px;
@@ -598,6 +678,7 @@ body.signuppage {
   text-align: center;
 
   h1 {
+    margin-top: 30px;
     font-size: 2rem;
     color: #e03e1b; // purple accent
     margin-bottom: 25px;
@@ -674,169 +755,256 @@ body.dashboardpage {
   *{
     text-decoration: none;
   }
- 
-
-  .dashboardheader {
-    margin-bottom: 30px;
-    background-color: #ff4b2b;
-
+  
+  .btn-home{
+    color:#222;
+    margin:0;
+    margin-top: 30px;
     
-
-    p {
-      font-size: 1.2rem;
-      color: #666;
-    }
-
-    
-
-    div.header{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-
-
-      h1 {
-      font-size: 2.5rem;
-      color:white;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-
-    }
   }
 
-  // Messages
+  p.info-success{
+    color:#222;
+    margin-top:80px;
+  }
+
+  p.info{
+    color:#222;
+    margin-top:80px;
+  }
+
+  .btn-cancel{
+  padding: 0.75rem;
+  margin-left: 620px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 60;
+  background-color: #ff4b2b;
+  color: white;
+
+  &:hover{
+   transform: translateY(-1px);
+   transition: all 0.3s ease;
+   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+  }
+  // room cards
 .room-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); // 3 rooms per row
-  gap: 1rem;
-
-
- .room-card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 20px;
-  width: 280px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  font-family: 'Poppins', sans-serif;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-5px);
-  }
-
-  .room-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-
-    .room-name {
-      font-size: 20px;
-      font-weight: 600;
-      color: #222;
-    }
-
-    .status {
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-      text-transform: capitalize;
-
-      &.occupied {
-        background-color: #f8d7da;
-        color: #a94442;
-      }
-
-      &.available {
-        background-color: #d4edda;
-        color: #155724;
-      }
-    }
-  }
-
-  .room-capacity {
-    font-size: 15px;
-    color: #555;
-    margin-bottom: 15px;
-  }
-
-  .room-btn {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    font-weight: 600;
-
-    &.unavailable {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    &.available {
-      background-color: #28a745;
-      color: white;
-    }
-  }
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 2rem 0;
 }
 
+.room-card {
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  transition: all 0.3s ease;
+  max-width: 500px;
+  max-height: 150px;
 
- #box2{
-  .room-header{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  
-
-  h1{
-    font-size: 20px;
-    color:#666
-  }   
- }
-  p{
-    
-    font-size: 20px;
-    color: #333;
-    margin-bottom: 0px;
+  &:hover{
+   transform: translateY(-3px);
+   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
   }
- }
 
+  
+  
+  h3 {
+    color: black; // purple tone
+    margin-bottom: 0px;
+    font-size: 20px;
+  }
 
- #box3{
+  p.room-type {
+  background: transparent;
+    color: gray;
+    font-size: 0.95rem;
+    margin-top: 10px;
+    text-align: left;
+  }
 
- }
+  
+  p.room-typep {
+  background: transparent;
+    color: gray;
+    font-size: 0.95rem;
+    margin-top: 30px;
+    text-align: left;
+  }
 }
 
 .room-btn {
-  padding: 1rem;
-  border-radius: 1rem;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  cursor: pointer;
-  font-weight: bold;
-  text-align: center;
-  transition: all 0.2s ease;
+  margin-top: -30px;
+  display: block;
+  width: 100%;
+  max-height: 40px;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 60;
+  transition: all 0.3s ease;
 
-  &:hover {
-    background-color: #f3e8ff;
-  }
-
-  &.selected {
-    background-color: #6b46c1;
+  &.available {
+    background: #ff4b2b; //light orange
     color: #fff;
-    transform: scale(1.05);
+
+    &:hover {
+      background: #e03e1b; //dark orange
+    }
   }
 
-  &:disabled {
-    opacity: 0.6;
+  &.booked {
+    background: #e03e1b;
+    color: #fff;
+    cursor: not-allowed;
+  }
+
+  &.unavailable {
+    background: #ccc;
+    color: #555;
     cursor: not-allowed;
   }
 }
+}
 
+body.bookingspage{
+  width: 500px;
+  height: 200px;
+  margin: 80px auto;
+  background: #fff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  .alert-container {
+  margin-left: 1050px;
+  position: fixed;         /* Fix it relative to the viewport */
+  margin-bottom: 150px;               /* Distance from top */       
+  z-index: 9999;           /* Make sure it stays above everything else */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;   /* Stack multiple alerts downward, aligned right */
+  gap: 10px;   
+}
+
+.close-toggle {
+  display: none;
+}
+
+.alert {
+  position: relative;
+  padding: 1rem 1.5rem;
+  margin: 1rem 0;
+  border: 2px solid black;
+  border-radius: 10px;
+  background-color: white;
+  color: black;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+  display: flex;
+  justify-content: space-between;
+  opacity: 1;
+}
+
+.btn-close {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: black;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-close::after {
+  content: "×";
+  margin-left: 10px;
+  margin-top:10px;
+}
+
+.btn-close:hover {
+  transform: scale(1.2);
+  opacity: 0.6;
+}
+
+/* When checkbox is checked, hide the alert */
+.close-toggle:checked + .alert {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+  transition: all 0.4s ease;
+  display: none;
+}
+
+   h1 {
+    margin-top: 30px;
+    font-size: 2rem;
+    color: #e03e1b;
+    margin-bottom: 25px;
+    
   }
+   
+  div.logout{
+    margin-top: 20px;
+    text-align: right;
+
+  .logout {
+  margin-top: 20px;
+  background-color: black;
+  color: white;
+  border: 2px solid white;
+  }
+
+  .logout:hover {
+  background-color: black;
+  color: white;
+  }
+}
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      font-size: 15px;
+      transition: 0.3s;
+
+      &:focus {
+        border-color: #e03e1b;
+        box-shadow: 0 0 5px #ff4b2b(122, 66, 244, 0.3);
+      }
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color:  #ff4b2b;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+
+      &:hover {
+        background-color:#e03e1b;
+      }
+}
+  }
+}
