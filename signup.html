@@ -8,13 +8,20 @@
 
 
 {% block body %}
-
+{% for message in get_flashed_messages() %}
+  <div class="alert-container">
+    <input type="checkbox" id="close{{ loop.index }}" class="close-toggle">
+    <div class="alert alert-primary fade show">
+      {{ message }}
+      <label for="close{{ loop.index }}" class="btn-close" aria-label="Close"></label>
+    </div>
+  </div>
+{% endfor %}
 
 <div class="signup_content">
         <h1>Sign Up</h1>
        <form method="POST" action="">
          {{ form.hidden_tag() }}
-         {{ form.username}}
          {{form.email}}
          {{ form.password}}
          {{ form.submit}}
