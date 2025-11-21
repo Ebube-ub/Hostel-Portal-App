@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block body_class %}adminpage{% endblock %}
+
+{% block head %}
+<title>Admin Dashboard - Hostel Management</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+<script src="https://kit.fontawesome.com/586d3fc22b.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block body %}
+<div class="admin-container">
+    <!-- Header -->
+    <header class="admin-header">
+        <h1><i class="fa-solid fa-building"></i> Hostel Management Dashboard</h1>
+        <div class="admin-actions">
+            <span class="admin-user">{{ current_user.email }}</span>
+            <a href="{{ url_for('index') }}" class="btn-secondary">
+                <i class="fa-solid fa-home"></i> Home
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn-danger">
+                <i class="fa-solid fa-sign-out"></i> Logout
+            </a>
+        </div>
+    </header>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card stat-rooms">
+            <div class="stat-icon"><i class="fa-solid fa-door-open"></i></div>
+            <div class="stat-content">
+                <h3>{{ stats.total_rooms }}</h3>
+                <p>Total Rooms</p>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-occupancy">
+            <div class="stat-icon"><i class="fa-solid fa-percentage"></i></div>
+            <div class="stat-content">
+                <h3>{{ stats.occupancy_rate }}%</h3>
+                <p>Occupancy Rate</p>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-bookings">
+            <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+            <div class="stat-content">
+                <h3>{{ stats.active_bookings }}</h3>
+                <p>Active Bookings</p>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-issues">
+            <div class="stat-icon"><i class="fa-solid fa-exclamation-triangle"></i></div>
+            <div class="stat-content">
+                <h3>{{ stats.pending_issues }}</h3>
+                <p>Pending Issues</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Status Distribution -->
+    <div class="status-distribution">
+        <h2>Room Status Distribution</h2>
+        <div class="status-grid">
+            <div class="status-box status-available">
+                <div class="status-count">{{ stats.available_rooms }}</div>
+                <div class="status-label">Available</div>
+            </div>
+            <div class="status-box status-occupied">
+                <div class="status-count">{{ stats.occupied_rooms }}</div>
+                <div class="status-label">Occupied</div>
+            </div>
+            <div class="status-box status-reserved">
+                <div class="status-count">{{ stats.reserved_rooms }}</div>
+                <div class="status-label">Reserved</div>
+            </div>
+            <div class="status-box status-maintenance">
+                <div class="status-count">{{ stats.maintenance_rooms }}</div>
+                <div class="status-label">Maintenance</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="tabs-container">
+        <div class="tabs-nav">
+            <a href="{{ url_for('admin_rooms') }}" 
+               class="tab-link {% if active_tab == 'rooms' %}active{% endif %}">
+                <i class="fa-solid fa-door-closed"></i> Room Status
+            </a>
+            <a href="{{ url_for('admin_bookings') }}" 
+               class="tab-link {% if active_tab == 'bookings' %}active{% endif %}">
+                <i class="fa-solid fa-calendar"></i> Bookings
+            </a>
+            <a href="{{ url_for('admin_issues') }}" 
+               class="tab-link {% if active_tab == 'issues' %}active{% endif %}">
+                <i class="fa-solid fa-tools"></i> Issues
+            </a>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            {% if active_tab == 'rooms' %}
+                {% include 'admin_rooms_tab.html' %}
+            {% elif active_tab == 'bookings' %}
+                {% include 'admin_bookings_tab.html' %}
+            {% elif active_tab == 'issues' %}
+                {% include 'admin_issues_tab.html' %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+<div class="table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Room</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Occupant</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in rooms %}
+            <tr>
+                <td><strong>{{ room.name }}</strong></td>
+                <td>{{ room.room_type|title }}</td>
+                <td>
+                    <span class="badge badge-{{ room.status }}">
+                        {{ room.status|title }}
+                    </span>
+                </td>
+                <td>{{ room.current_occupant_email or '-' }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('update_room_status', room_id=room.id) }}" class="inline-form">
+                        <select name="status" class="status-select">
+                            <option value="available" {% if room.status == 'available' %}selected{% endif %}>Available</option>
+                            <option value="occupied" {% if room.status == 'occupied' %}selected{% endif %}>Occupied</option>
+                            <option value="maintenance" {% if room.status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                            <option value="reserved" {% if room.status == 'reserved' %}selected{% endif %}>Reserved</option>
+                        </select>
+                        <button type="submit" class="btn-sm btn-primary">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

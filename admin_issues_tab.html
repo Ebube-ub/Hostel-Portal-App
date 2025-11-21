@@ -1,0 +1,50 @@
+<div class="table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Room</th>
+                <th>Issue</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for issue in issues %}
+            <tr>
+                <td>{{ issue.email }}</td>
+                <td>{{ issue.room_name or '-' }}</td>
+                <td>{{ issue.description[:50] }}...</td>
+                <td>
+                    <span class="badge badge-priority-{{ issue.priority }}">
+                        {{ issue.priority|title }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge badge-{{ issue.status }}">
+                        {{ issue.status|title }}
+                    </span>
+                </td>
+                <td>{{ issue.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('update_issue_status', issue_id=issue.id) }}" class="inline-form">
+                        <select name="status" class="status-select-sm">
+                            <option value="pending" {% if issue.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="in_progress" {% if issue.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="resolved" {% if issue.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                        </select>
+                        <select name="priority" class="status-select-sm">
+                            <option value="low" {% if issue.priority == 'low' %}selected{% endif %}>Low</option>
+                            <option value="medium" {% if issue.priority == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="high" {% if issue.priority == 'high' %}selected{% endif %}>High</option>
+                        </select>
+                        <button type="submit" class="btn-sm btn-primary">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
