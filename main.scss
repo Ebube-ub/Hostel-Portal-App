@@ -592,10 +592,57 @@ body.loginpage {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 
+
+  .alert {
+  position: relative;
+  padding: 1rem 1.5rem;
+  margin: 1rem 0;
+  border: 2px solid black;
+  border-radius: 10px;
+  background-color: white;
+  color: black;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+  display: flex;
+  justify-content: space-between;
+  opacity: 1;
+}
+
+.btn-close {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: black;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-close::after {
+  content: "×";
+  margin-left: 10px;
+  margin-top:10px;
+}
+
+.btn-close:hover {
+  transform: scale(1.2);
+  opacity: 0.6;
+}
+
+/* When checkbox is checked, hide the alert */
+.close-toggle:checked + .alert {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+  transition: all 0.4s ease;
+  display: none;
+}
+
   h1 {
     margin-top: 15px;
     font-size: 2rem;
-    color: #e03e1b; // purple accent
+    color: black; // purple accent
     margin-bottom: 25px;
   }
 
@@ -622,7 +669,7 @@ body.loginpage {
     }
 
     input[type="submit"] {
-      width: 100%;
+      width: 50%;
       padding: 12px;
       background-color:  #ff4b2b;
       color: white;
@@ -669,7 +716,7 @@ body.signuppage {
     text-decoration: none;
   }
   width: 500px;
-  height: 400px;
+  height: 300px;
   margin: 80px auto;
   background: #fff;
   padding: 40px;
@@ -678,9 +725,9 @@ body.signuppage {
   text-align: center;
 
   h1 {
-    margin-top: 30px;
+    margin-top: 20px;
     font-size: 2rem;
-    color: #e03e1b; // purple accent
+    color: black; // purple accent
     margin-bottom: 25px;
   }
 
@@ -707,7 +754,7 @@ body.signuppage {
     }
 
     input[type="submit"] {
-      width: 100%;
+      width: 50%;
       padding: 12px;
       background-color:  #ff4b2b;
       color: white;
@@ -755,13 +802,31 @@ body.dashboardpage {
   *{
     text-decoration: none;
   }
-  
-  .btn-home{
-    color:#222;
-    margin:0;
+
+  .homebtn-container{
+    display: flex;
+    align-items: center;
+    justify-items: space-between;
     margin-top: 30px;
-    
+    border: none;
+    border-radius: 8px;
+    background-color: transparent; //because buttons already have bg color
+
+    &:hover{
+      transform: translateY(-1px);
+      transition: all 0.3s ease;
+      background-color: rgba(255, 0, 0, 0.1); /* light red background */
+    }
   }
+
+
+  .home-arrow{
+    margin-right: 10px;
+  }
+  .btn-home,.home-arrow{
+    color:#222;
+  }
+
 
   p.info-success{
     color:#222;
@@ -950,6 +1015,12 @@ body.bookingspage{
     margin-bottom: 25px;
     
   }
+
+  p{
+    color: #e03e1b;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
    
   div.logout{
     margin-top: 20px;
@@ -1008,3 +1079,40 @@ body.bookingspage{
 }
   }
 }
+
+body.adminpage .content{
+    h1{
+        font-size: 32px;
+    }
+
+    table{
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td{
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th{
+        background-color: #f4f4f4;
+    }
+
+    a{
+        display: inline-block;
+        padding: 8px 16px;
+        margin: 5px;
+        border-radius:20px;
+        background-color: #ff4b2b;
+        color: #fff;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+
+        &:hover{
+            background-color: #e03e1b;
+        }
+    }
+  }
