@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block body_class %}authpage{% endblock %}
+{% block title %}Log in &middot; School House{% endblock %}
+
+{% block body %}
+<div class="auth">
+  <div class="auth-card">
+    <span class="brand-mark brand-mark--lg"><i class="fa-solid fa-house-chimney"></i></span>
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-sub">Log in to reserve your room for the semester.</p>
+
+    <form method="POST" action="" class="auth-form">
+      {{ form.hidden_tag() }}
+      <label class="field">
+        <span class="field-label">Email</span>
+        {{ form.email(class_="field-input", placeholder="you@school.edu") }}
+      </label>
+      <label class="field">
+        <span class="field-label">Password</span>
+        {{ form.password(class_="field-input", placeholder="Your password") }}
+      </label>
+      {{ form.submit(class_="btn btn-primary btn-block") }}
+    </form>
+
+    {% if error %}
+    <p class="auth-error"><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</p>
+    {% endif %}
+
+    <p class="auth-alt">Don&rsquo;t have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+  </div>
+</div>
+{% endblock %}

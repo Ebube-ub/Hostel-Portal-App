@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Flask instance folder - holds the SQLite database
+instance/
+*.db
+*.sqlite3
+
+# Local secrets
+.env
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/

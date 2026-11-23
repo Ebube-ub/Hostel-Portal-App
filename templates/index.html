@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% block body_class %}homepage{% endblock %}
+{% block title %}School House &middot; Find your room{% endblock %}
+
+{% block body %}
+{% set is_student = current_user.is_authenticated and not current_user.is_admin %}
+{% set on_hold = is_student and (active_booking or pending_request) %}
+{% set rooms_href = url_for('login') if not current_user.is_authenticated else (url_for('bookings') if on_hold else url_for('dashboard')) %}
+<section class="hero">
+  <div class="hero-media" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <h1 class="hero-title">Find your perfect<br>room on campus</h1>
+    <p class="hero-sub">
+      {% if stats.total %}
+        {{ stats.free }} of {{ stats.total }} rooms available right now &mdash; reserve your place for the semester.
+      {% else %}
+        Room allocation opens soon.
+      {% endif %}
+    </p>
+
+    <div class="hero-cta">
+      {% if is_student and active_booking %}
+        <a class="btn btn-amber" href="{{ url_for('bookings') }}">My room &middot; {{ active_booking.room_name | replace('Room', 'Room ') }} <i class="fa-solid fa-arrow-right"></i></a>
+      {% elif is_student and pending_request %}
+        <a class="btn btn-amber" href="{{ url_for('bookings') }}">Request pending &middot; {{ pending_request.room_name | replace('Room', 'Room ') }} <i class="fa-solid fa-arrow-right"></i></a>
+      {% elif current_user.is_authenticated %}
+        <a class="btn btn-amber" href="{{ url_for('dashboard') }}">Book your room <i class="fa-solid fa-arrow-right"></i></a>
+      {% else %}
+        <a class="btn btn-amber" href="{{ url_for('login') }}">Get started <i class="fa-solid fa-arrow-right"></i></a>
+      {% endif %}
+      {% if not on_hold %}
+      <a class="btn btn-glass" href="#rooms">Explore rooms</a>
+      {% endif %}
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <i class="fa-solid fa-user-lock"></i>
+        <span class="hero-stat-title">Private</span>
+        <span class="hero-stat-sub">{{ stats.private_free }} available</span>
+      </div>
+      <div class="hero-stat">
+        <i class="fa-solid fa-user-group"></i>
+        <span class="hero-stat-title">Shared</span>
+        <span class="hero-stat-sub">{{ stats.shared_free }} available</span>
+      </div>
+      <div class="hero-stat">
+        <i class="fa-solid fa-door-open"></i>
+        <span class="hero-stat-title">Rooms</span>
+        <span class="hero-stat-sub">{{ stats.free }} of {{ stats.total }} free</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sheet">
+  <div class="shell">
+
+    <div class="greet reveal">
+      <div>
+        <p class="greet-title">
+          Hello{% if current_user.is_authenticated %}, {{ current_user.email.split('@')[0] | title }}{% endif %}
+          <span class="wave">&#128075;</span>
+        </p>
+        <p class="greet-sub">Find the perfect place to call home</p>
+      </div>
+      <a class="icon-btn" href="{{ url_for('bookings') if current_user.is_authenticated else url_for('login') }}" aria-label="My bookings">
+        <i class="fa-regular fa-bell"></i>
+      </a>
+    </div>
+
+    {% if is_student and active_booking %}
+    <div class="notice notice--status reveal" id="home-status">
+      <i class="fa-solid fa-key"></i>
+      <span>
+        {% if pending_rebooking %}
+          {{ active_booking.room_name | replace('Room', 'Room ') }} is yours &mdash; your rebooking to {{ pending_rebooking.room_name | replace('Room', 'Room ') }} is waiting for the warden.
+        {% else %}
+          {{ active_booking.room_name | replace('Room', 'Room ') }} is your room. Report an issue or request a rebooking from My bookings.
+        {% endif %}
+      </span>
+      <a class="notice-link" href="{{ url_for('bookings') }}">My bookings</a>
+    </div>
+    {% elif is_student and pending_request %}
+    <div class="notice notice--status reveal" id="home-status">
+      <i class="fa-solid fa-hourglass-half"></i>
+      <span>
+        {% if pending_request.status == 'awaiting_student' %}
+          {{ pending_request.room_name | replace('Room', 'Room ') }} is reserved for you &mdash; confirm it on My bookings to activate it.
+        {% else %}
+          Your request for {{ pending_request.room_name | replace('Room', 'Room ') }} is waiting for the warden. You can't book another room until it is answered.
+        {% endif %}
+      </span>
+      <a class="notice-link" href="{{ url_for('bookings') }}">{{ 'Confirm reservation' if pending_request.status == 'awaiting_student' else 'View request' }}</a>
+    </div>
+    {% endif %}
+
+    <div class="promo reveal">
+      <div class="promo-media" aria-hidden="true"></div>
+      <div class="promo-body">
+        <span class="badge-pill badge-pill--light">On campus</span>
+        <h2 class="promo-title">Modern<br>student living</h2>
+        <p class="promo-sub">Private rooms for focused study, shared rooms for two. Everything a short walk from class.</p>
+      </div>
+      <a class="promo-arrow" href="{{ rooms_href }}" aria-label="{{ 'My bookings' if on_hold else 'Browse rooms' }}">
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="section-head reveal">
+      <h2 class="section-title">Choose your room type</h2>
+      <a class="section-link" href="{{ rooms_href }}">
+        View all <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div id="rooms" class="type-grid">
+      <article class="type-card reveal">
+        <div class="type-media type-media--private">
+          <i class="fa-solid fa-user-lock"></i>
+          <span class="type-avail">{{ stats.private_free }} free</span>
+        </div>
+        <div class="type-body">
+          <h3 class="type-title">Private room</h3>
+          <p class="type-loc"><i class="fa-solid fa-location-dot"></i> One student per room</p>
+          <ul class="spec-list">
+            <li><i class="fa-solid fa-bed"></i> Single bed</li>
+            <li><i class="fa-solid fa-chair"></i> Study desk &amp; chair</li>
+            <li><i class="fa-solid fa-box"></i> Wardrobe &amp; storage</li>
+          </ul>
+          {% if is_student and active_booking %}
+          <a class="btn btn-ghost btn-block" href="{{ url_for('bookings') }}">View my room</a>
+          {% elif is_student and pending_request %}
+          <button type="button" disabled class="btn btn-block is-booked">Request pending</button>
+          {% else %}
+          <a class="btn btn-primary btn-block" href="{{ rooms_href }}">Book a private room</a>
+          {% endif %}
+        </div>
+      </article>
+
+      <article class="type-card reveal">
+        <div class="type-media type-media--shared">
+          <i class="fa-solid fa-user-group"></i>
+          <span class="type-avail">{{ stats.shared_free }} free</span>
+        </div>
+        <div class="type-body">
+          <h3 class="type-title">Shared room</h3>
+          <p class="type-loc"><i class="fa-solid fa-location-dot"></i> Two students per room</p>
+          <ul class="spec-list">
+            <li><i class="fa-solid fa-bed"></i> Shared study area</li>
+            <li><i class="fa-solid fa-users"></i> One roommate</li>
+            <li><i class="fa-solid fa-box"></i> Shared closet space</li>
+          </ul>
+          {% if is_student and active_booking %}
+          <a class="btn btn-ghost btn-block" href="{{ url_for('bookings') }}">View my room</a>
+          {% elif is_student and pending_request %}
+          <button type="button" disabled class="btn btn-block is-booked">Request pending</button>
+          {% else %}
+          <a class="btn btn-primary btn-block" href="{{ rooms_href }}">Book a bed</a>
+          {% endif %}
+        </div>
+      </article>
+    </div>
+
+    {% if rooms %}
+    <div class="section-head reveal">
+      <h2 class="section-title">Featured rooms</h2>
+      <a class="section-link" href="{{ rooms_href }}">
+        View all <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="room-grid room-grid--home">
+      {% for room in rooms if room.is_available %}
+        {% if loop.index <= 4 %}
+        <article class="room-card reveal">
+          <div class="room-media room-media--{{ room.room_type }}">
+            <span class="badge-pill badge-pill--overlay">{{ room.room_type | title }}</span>
+            <span class="room-media-icon"><i class="fa-solid {{ 'fa-user-lock' if room.room_type == 'private' else 'fa-user-group' }}"></i></span>
+            <span class="room-media-num">{{ room.name | replace('Room', '') }}</span>
+          </div>
+          <div class="room-body">
+            <h3 class="room-name">{{ room.display_name }}</h3>
+            <p class="room-loc"><i class="fa-solid fa-location-dot"></i> School House &middot; Campus</p>
+            <div class="spec-row">
+              <span class="spec"><i class="fa-solid fa-bed"></i> {{ room.capacity }} {{ 'bed' if room.capacity == 1 else 'beds' }}</span>
+              <span class="spec"><i class="fa-solid fa-user"></i> {{ room.capacity }} {{ 'person' if room.capacity == 1 else 'people' }}</span>
+              <span class="spec"><i class="fa-solid fa-door-open"></i> {{ room.free_beds }} free</span>
+            </div>
+          </div>
+        </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="section-head reveal">
+      <h2 class="section-title">Hostel amenities</h2>
+    </div>
+    <div class="amenity-grid reveal">
+      <div class="amenity"><span class="amenity-icon"><i class="fa-solid fa-wifi"></i></span><span>Free WiFi</span></div>
+      <div class="amenity"><span class="amenity-icon"><i class="fa-solid fa-bed"></i></span><span>Comfortable beds</span></div>
+      <div class="amenity"><span class="amenity-icon"><i class="fa-solid fa-utensils"></i></span><span>Cafeteria</span></div>
+      <div class="amenity"><span class="amenity-icon"><i class="fa-solid fa-book"></i></span><span>Study areas</span></div>
+      <div class="amenity"><span class="amenity-icon"><i class="fa-solid fa-broom"></i></span><span>Cleaning &amp; laundry</span></div>
+      <div class="amenity"><span class="amenity-icon"><i class="fa-solid fa-shield-halved"></i></span><span>24/7 security</span></div>
+    </div>
+
+    <div class="cta-band reveal">
+      <div>
+        <h2 class="cta-title">Ready to move in?</h2>
+        <p class="cta-sub">
+          {% if is_student and active_booking %}
+            Your room is sorted. Manage it, report a problem or ask to move from your bookings page.
+          {% elif is_student and pending_request %}
+            Your request is with the warden &mdash; you can follow or withdraw it from your bookings page.
+          {% else %}
+            Pick a room in under a minute. Cancel any time from your bookings page.
+          {% endif %}
+        </p>
+      </div>
+      <a class="btn btn-amber" href="{{ rooms_href }}">
+        {% if is_student and active_booking %}Manage my booking{% elif is_student and pending_request %}View my request{% else %}Book your room{% endif %} <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

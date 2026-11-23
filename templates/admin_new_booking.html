@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block body_class %}accountpage{% endblock %}
+{% block title %}Reserve a room &middot; School House{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="shell">
+
+    <div class="page-head">
+      <div>
+        <a href="{{ url_for('admin_bookings') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to bookings</a>
+        <h1 class="page-title">Reserve for a student</h1>
+        <p class="page-sub">The bed is held for them, but the booking only activates once the student signs in and confirms it.</p>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="notice notice--error">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ error }}</span>
+      {% if conflict_link %}
+      <a class="notice-link" href="{{ conflict_link }}">Open the Bookings tab</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="panel panel--pad">
+      <form method="POST" action="{{ url_for('admin_new_booking') }}" class="stack-form">
+        <div class="field-grid">
+          <label class="field">
+            <span class="field-label">Student name</span>
+            <input class="field-input" type="text" name="name" value="{{ form.name }}"
+                   placeholder="e.g. Amara Okafor" required>
+          </label>
+          <label class="field">
+            <span class="field-label">Student email</span>
+            <input class="field-input" type="email" name="email" id="student-email"
+                   value="{{ form.email }}" placeholder="student@school.edu"
+                   aria-describedby="student-email-warning" required>
+            <span class="field-hint">Must be the email on an existing student account.</span>
+            <span class="field-warning" id="student-email-warning" role="alert" hidden></span>
+          </label>
+          <label class="field">
+            <span class="field-label">Student ID <span class="field-optional">optional</span></span>
+            <input class="field-input" type="text" name="student_id" value="{{ form.student_id }}"
+                   placeholder="e.g. 2026-1183">
+          </label>
+          <label class="field">
+            <span class="field-label">Room</span>
+            <select class="field-input" name="room_name" required>
+              <option value="">Choose a room</option>
+              {% for room in rooms %}
+              <option value="{{ room.name }}" {% if form.room_name == room.name %}selected{% endif %}
+                      {% if not room.is_available %}disabled{% endif %}>
+                {{ room.display_name }} &middot; {{ room.room_type | title }} &middot;
+                {{ room.free_beds }} free
+              </option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="reserve-submit">Reserve the room</button>
+          <a href="{{ url_for('admin_bookings') }}" class="btn btn-ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+
+    <p class="empty-state">Wardens cannot hold a bed for themselves &mdash; every reservation belongs to a named student.</p>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="blocked-students" type="application/json">{{ blocked_students | tojson }}</script>
+<script>
+  (function () {
+    var data = document.getElementById('blocked-students');
+    var email = document.getElementById('student-email');
+    var warning = document.getElementById('student-email-warning');
+    var submit = document.getElementById('reserve-submit');
+    if (!data || !email || !warning || !submit) return;
+
+    var blocked = {};
+    try { blocked = JSON.parse(data.textContent || '{}'); } catch (err) { blocked = {}; }
+    var bookingsUrl = {{ url_for('admin_bookings') | tojson }};
+
+    function check() {
+      var value = (email.value || '').trim().toLowerCase();
+      var reason = blocked[value];
+
+      warning.innerHTML = '';
+      if (!reason) {
+        warning.hidden = true;
+        submit.disabled = false;
+        submit.removeAttribute('title');
+        email.setCustomValidity('');
+        return;
+      }
+
+      warning.hidden = false;
+      var icon = document.createElement('i');
+      icon.className = 'fa-solid fa-circle-exclamation';
+      var text = document.createElement('span');
+      text.textContent = reason + ' ';
+      var link = document.createElement('a');
+      link.href = bookingsUrl;
+      link.textContent = 'Open the Bookings tab';
+      warning.appendChild(icon);
+      warning.appendChild(text);
+      warning.appendChild(link);
+
+      submit.disabled = true;
+      submit.title = reason;
+      email.setCustomValidity(reason);
+    }
+
+    email.addEventListener('input', check);
+    email.addEventListener('change', check);
+    check();
+  })();
+</script>
+{% endblock %}

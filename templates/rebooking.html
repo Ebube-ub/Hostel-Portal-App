@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block body_class %}accountpage{% endblock %}
+{% block title %}Request a rebooking &middot; School House{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="shell">
+
+    <div class="page-head">
+      <div>
+        <a href="{{ url_for('bookings') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to my bookings</a>
+        <h1 class="page-title">Request a rebooking</h1>
+        <p class="page-sub">Your current room stays yours until the warden approves the move.</p>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="notice notice--error"><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</div>
+    {% endif %}
+
+    <div class="current-card">
+      <div class="current-icon"><i class="fa-solid fa-key"></i></div>
+      <div class="current-body">
+        <p class="current-eyebrow">Your current room</p>
+        <p class="current-title">{{ active_room.display_name if active_room else active_booking.room_name }}</p>
+        <p class="current-meta">
+          {% if active_room %}
+            {{ active_room.room_type | title }} room &middot;
+            {{ active_room.occupied_beds }} of {{ active_room.capacity }} beds taken
+          {% else %}
+            Active booking
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="panel panel--pad">
+      <form method="POST" action="{{ url_for('request_rebooking') }}" class="stack-form">
+        <label class="field">
+          <span class="field-label">Preferred room</span>
+          <select class="field-input" name="room_name" required>
+            <option value="">Choose a room</option>
+            {% for room in rooms %}
+            <option value="{{ room.name }}" {% if form.room_name == room.name %}selected{% endif %}
+                    {% if not room.is_available %}disabled{% endif %}>
+              {{ room.display_name }} &middot; {{ room.room_type | title }} &middot;
+              {{ room.free_beds }} free
+            </option>
+            {% endfor %}
+          </select>
+          <span class="field-hint">Only rooms with a free bed can be requested.</span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Reason for moving</span>
+          <textarea class="field-input field-textarea" name="reason" rows="4" maxlength="300"
+                    placeholder="e.g. I need a quieter room closer to the library" required>{{ form.reason }}</textarea>
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Send rebooking request</button>
+          <a href="{{ url_for('bookings') }}" class="btn btn-ghost">Cancel</a>
+        </div>
+      </form>
+    </div>
+
+    <p class="empty-state">One rebooking request at a time &mdash; withdraw it from My bookings if you change your mind.</p>
+
+  </div>
+</div>
+{% endblock %}

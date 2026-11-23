@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% block body_class %}dashboardpage{% endblock %}
+{% block title %}Choose a room &middot; School House{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="shell">
+
+    <div class="page-head">
+      <div>
+        <a href="{{ url_for('index') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to home</a>
+        <h1 class="page-title">{% if current_user.is_admin %}Reserve a room{% elif active_booking %}Your room{% elif pending_request %}Your booking request{% else %}Choose your room{% endif %}</h1>
+        <p class="page-sub">Signed in as {{ user.email }}</p>
+      </div>
+      <div class="page-actions">
+        {% if active_booking %}
+        <a href="#my-room" class="btn btn-ghost btn-sm">
+          <i class="fa-solid fa-key"></i> My room
+        </a>
+        {% endif %}
+        <a href="{{ url_for('bookings') }}" class="btn btn-ghost btn-sm">
+          <i class="fa-solid fa-list-check"></i> My bookings
+        </a>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('admin') }}" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-shield-halved"></i> Admin
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <span class="stat-value">{{ summary.free_rooms }}</span>
+        <span class="stat-label">Rooms free</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ summary.total_rooms }}</span>
+        <span class="stat-label">Rooms total</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ summary.free_beds }}</span>
+        <span class="stat-label">Beds free</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value">{{ summary.total_beds }}</span>
+        <span class="stat-label">Beds total</span>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="notice notice--error"><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</div>
+    {% endif %}
+
+    {% if not current_user.is_admin %}
+    {% if active_booking %}
+      {% set current = rooms | selectattr('name', 'equalto', active_booking.room_name) | first %}
+      <div class="current-card" id="my-room">
+        <div class="current-icon"><i class="fa-solid fa-key"></i></div>
+        <div class="current-body">
+          <p class="current-eyebrow">Your approved room</p>
+          <p class="current-title">{{ current.display_name if current else active_booking.room_name }}</p>
+          <p class="current-meta">
+            {% if pending_rebooking %}
+              Rebooking to {{ pending_rebooking.room_name | replace('Room', 'Room ') }} is waiting for the warden &mdash; this room stays yours until it is approved.
+            {% elif current %}
+              {{ current.room_type | title }} room &middot; {{ current.occupied_beds }} of {{ current.capacity }} beds taken
+            {% else %}
+              Active booking
+            {% endif %}
+          </p>
+        </div>
+        <div class="row-actions">
+          <a href="{{ url_for('bookings', _anchor='report-issue') }}" class="btn btn-ghost btn-sm">Report an issue</a>
+          {% if pending_rebooking %}
+          <a href="{{ url_for('bookings') }}" class="btn btn-ghost btn-sm">View request</a>
+          {% else %}
+          <a href="{{ url_for('request_rebooking') }}" class="btn btn-primary btn-sm">Request rebooking</a>
+          {% endif %}
+          <form method="POST" action="{{ url_for('cancel_selection') }}">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this booking and give up the room?')">Cancel booking</button>
+          </form>
+        </div>
+      </div>
+
+      {% if pending_rebooking %}
+      <div class="current-card" id="rebooking-status">
+        <div class="current-icon"><i class="fa-solid fa-right-left"></i></div>
+        <div class="current-body">
+          <p class="current-eyebrow">Rebooking request awaiting warden approval</p>
+          <p class="current-title">
+            {{ pending_rebooking.previous_room | replace('Room', 'Room ') }}
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            {{ pending_rebooking.room_name | replace('Room', 'Room ') }}
+          </p>
+          <p class="current-meta">
+            Reason: {{ pending_rebooking.reason }}<br>
+            You keep this room until the warden answers the request, and you cannot send another rebooking while it is waiting.
+          </p>
+        </div>
+        <a href="{{ url_for('bookings') }}" class="btn btn-ghost btn-sm">View request</a>
+      </div>
+      {% endif %}
+    {% elif pending_request %}
+      {% set waiting = rooms | selectattr('name', 'equalto', pending_request.room_name) | first %}
+      <div class="current-card">
+        <div class="current-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+        <div class="current-body">
+          <p class="current-eyebrow">{{ 'Reserved for you' if pending_request.status == 'awaiting_student' else 'Booking request awaiting warden approval' }}</p>
+          <p class="current-title">{{ waiting.display_name if waiting else pending_request.room_name }}</p>
+          <p class="current-meta">
+            {% if pending_request.status == 'awaiting_student' %}
+              Confirm the reservation on My bookings to activate it. Until you do, the room is not yours and you cannot book another one.
+            {% else %}
+              Request sent &mdash; the warden will approve or decline it shortly. You cannot book another room while this request is waiting.
+            {% endif %}
+          </p>
+        </div>
+        {% if pending_request.status == 'awaiting_student' %}
+        <a href="{{ url_for('bookings') }}" class="btn btn-primary btn-sm">Review reservation</a>
+        {% else %}
+        <form method="POST" action="{{ url_for('cancel_selection') }}">
+          <button type="submit" class="btn btn-danger btn-sm">Withdraw request</button>
+        </form>
+        {% endif %}
+      </div>
+    {% else %}
+    <div class="current-card current-card--empty">
+      <div class="current-icon"><i class="fa-solid fa-door-open"></i></div>
+      <div class="current-body">
+        <p class="current-eyebrow">No room assigned</p>
+        <p class="current-title">You can book a room now</p>
+        <p class="current-meta">
+          {% if previous_request %}
+            Your request for {{ previous_request.room_name | replace('Room', 'Room ') }} is no longer active, so you are free to book again. Pick an available room below and send a new request.
+          {% else %}
+            Browse the available rooms below and send a booking request. The warden approves it before the room is yours.
+          {% endif %}
+        </p>
+      </div>
+      <div class="row-actions">
+        <a href="#all-rooms" class="btn btn-ghost btn-sm">Browse rooms</a>
+        <a href="#room-grid" class="btn btn-primary btn-sm">Book a room</a>
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if current_user.is_admin or (not active_booking and not pending_request) %}
+    <div class="section-head" id="all-rooms">
+      <h2 class="section-title">All rooms</h2>
+      <span class="section-note">{{ summary.free_rooms }} available</span>
+    </div>
+
+    <div class="chip-row" data-filter-group>
+      <button type="button" class="chip is-active" data-filter="all">All rooms</button>
+      <button type="button" class="chip" data-filter="private">Private</button>
+      <button type="button" class="chip" data-filter="shared">Shared</button>
+      <button type="button" class="chip" data-filter="free">Available now</button>
+    </div>
+
+    {% if current_user.is_admin %}
+    <div class="notice">
+      <i class="fa-solid fa-circle-info"></i>
+      Wardens don't book beds for themselves. Choose a room below to reserve a bed for a named student.
+    </div>
+    {% endif %}
+
+    <form method="POST" id="room-form">
+      <div class="room-grid" id="room-grid">
+        {% for room in rooms %}
+        <article class="room-card{% if not room.is_available %} is-unavailable{% endif %}"
+                 data-type="{{ room.room_type }}"
+                 data-free="{{ 1 if room.is_available else 0 }}">
+          <div class="room-media room-media--{{ room.room_type }}">
+            <span class="badge-pill badge-pill--overlay">
+              {% if room.status == 'maintenance' %}Maintenance
+              {% elif room.status == 'reserved' %}Reserved
+              {% elif room.free_beds == 0 %}Full
+              {% else %}Available{% endif %}
+            </span>
+            <span class="room-media-icon"><i class="fa-solid {{ 'fa-user-lock' if room.room_type == 'private' else 'fa-user-group' }}"></i></span>
+            <span class="room-media-num">{{ room.name | replace('Room', '') }}</span>
+          </div>
+          <div class="room-body">
+            <h3 class="room-name">{{ room.display_name }}</h3>
+            <p class="room-loc"><i class="fa-solid fa-location-dot"></i> {{ room.room_type | title }} &middot; {{ room.capacity }} {{ 'person' if room.capacity == 1 else 'people' }}</p>
+            <div class="spec-row">
+              <span class="spec"><i class="fa-solid fa-bed"></i> {{ room.occupied_beds }}/{{ room.capacity }}</span>
+              <span class="spec"><i class="fa-solid fa-door-open"></i> {{ room.free_beds }} free</span>
+              <span class="spec"><i class="fa-solid {{ 'fa-user-lock' if room.room_type == 'private' else 'fa-user-group' }}"></i> {{ room.room_type | title }}</span>
+            </div>
+
+            {% if current_user.is_admin %}
+              <a class="btn btn-ghost btn-block" href="{{ url_for('admin_new_booking', room=room.name) }}">
+                Reserve for a student
+              </a>
+            {% elif active_booking and active_booking.room_name == room.name %}
+              <button type="button" disabled class="btn btn-block is-booked">Your room</button>
+            {% elif pending_request %}
+              <button type="button" disabled class="btn btn-block is-booked">Request pending</button>
+            {% elif active_booking %}
+              {# approved residents change rooms through the rebooking form #}
+              {% if pending_rebooking %}
+                <button type="button" disabled class="btn btn-block is-booked">Rebooking pending</button>
+              {% elif room.is_available %}
+                <a class="btn btn-ghost btn-block" href="{{ url_for('request_rebooking', room=room.name) }}">
+                  Request rebooking
+                </a>
+              {% else %}
+                <button type="button" disabled class="btn btn-block is-disabled">Unavailable</button>
+              {% endif %}
+            {% elif not room.is_available %}
+              <button type="button" disabled class="btn btn-block is-disabled">Unavailable</button>
+            {% else %}
+              <button type="submit" name="room_name" value="{{ room.name }}" class="btn btn-primary btn-block">
+                {{ 'Book the room' if room.room_type == 'private' else 'Book a bed' }}
+              </button>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      <p class="empty-state" id="filter-empty" hidden>No rooms match that filter.</p>
+    </form>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var grid = document.getElementById('room-grid');
+    var chips = document.querySelectorAll('[data-filter-group] .chip');
+    var empty = document.getElementById('filter-empty');
+    if (!grid || !chips.length) return;
+
+    function apply(filter) {
+      var visible = 0;
+      grid.querySelectorAll('.room-card').forEach(function (card) {
+        var show = filter === 'all'
+          || (filter === 'free' ? card.dataset.free === '1' : card.dataset.type === filter);
+        card.hidden = !show;
+        if (show) visible += 1;
+      });
+      if (empty) empty.hidden = visible !== 0;
+    }
+
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        chips.forEach(function (other) { other.classList.remove('is-active'); });
+        chip.classList.add('is-active');
+        apply(chip.dataset.filter);
+      });
+    });
+  })();
+</script>
+{% endblock %}

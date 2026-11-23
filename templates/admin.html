@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block body_class %}adminpage{% endblock %}
+{% block title %}Hostel management &middot; School House{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="shell">
+
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">Warden console</p>
+        <h1 class="page-title">Hostel management</h1>
+        <p class="page-sub">{{ current_user.email }}</p>
+      </div>
+      <div class="page-actions">
+        <a href="{{ url_for('index') }}" class="btn btn-ghost btn-sm"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric">
+        <span class="metric-icon metric-icon--navy"><i class="fa-solid fa-door-open"></i></span>
+        <span class="metric-value">{{ stats.total_rooms }}</span>
+        <span class="metric-label">Rooms &middot; {{ stats.total_beds }} beds</span>
+      </div>
+      <div class="metric">
+        <span class="metric-icon metric-icon--green"><i class="fa-solid fa-percent"></i></span>
+        <span class="metric-value">{{ stats.occupancy_rate }}%</span>
+        <span class="metric-label">Beds occupied</span>
+      </div>
+      <div class="metric">
+        <span class="metric-icon metric-icon--amber"><i class="fa-solid fa-calendar-check"></i></span>
+        <span class="metric-value">{{ stats.active_bookings }}</span>
+        <span class="metric-label">Active bookings</span>
+      </div>
+      <div class="metric">
+        <span class="metric-icon metric-icon--clay"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <span class="metric-value">{{ stats.pending_issues }}</span>
+        <span class="metric-label">Pending issues</span>
+      </div>
+    </div>
+
+    <div class="panel panel--pad">
+      <div class="panel-head">
+        <h2 class="section-title">Room status</h2>
+        <span class="section-note">Live from bookings</span>
+      </div>
+      {% set av = stats.available_rooms %}
+      {% set oc = stats.occupied_rooms %}
+      {% set rv = stats.reserved_rooms %}
+      {% set mn = stats.maintenance_rooms %}
+      {% set total_rooms = av + oc + rv + mn %}
+      {% set p1 = [[(av / total_rooms * 100) if total_rooms else 0, 100] | min, 0] | max %}
+      {% set p2 = [[((av + oc) / total_rooms * 100) if total_rooms else 0, 100] | min, 0] | max %}
+      {% set p3 = [[((av + oc + rv) / total_rooms * 100) if total_rooms else 0, 100] | min, 0] | max %}
+      <div class="status-chart">
+        <div class="status-chart__pie{% if not total_rooms %} is-empty{% endif %}" role="img"
+             aria-label="{{ av }} rooms available, {{ oc }} occupied, {{ rv }} reserved, {{ mn }} in maintenance"
+             style="--p1: {{ p1 }}%; --p2: {{ p2 }}%; --p3: {{ p3 }}%;">
+          <div class="status-chart__fill"></div>
+        </div>
+        <ul class="status-chart__legend">
+          <li><i class="swatch swatch--available"></i><span>Available</span><strong>{{ av }}</strong></li>
+          <li><i class="swatch swatch--occupied"></i><span>Occupied</span><strong>{{ oc }}</strong></li>
+          <li><i class="swatch swatch--reserved"></i><span>Reserved</span><strong>{{ rv }}</strong></li>
+          <li><i class="swatch swatch--maintenance"></i><span>Maintenance</span><strong>{{ mn }}</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="segmented" role="tablist">
+      <a href="{{ url_for('admin_rooms') }}" role="tab"
+         class="seg {% if active_tab == 'rooms' %}is-active{% endif %}">
+        <i class="fa-solid fa-door-closed"></i> Rooms
+      </a>
+      <a href="{{ url_for('admin_bookings') }}" role="tab"
+         class="seg {% if active_tab == 'bookings' %}is-active{% endif %}">
+        <i class="fa-solid fa-calendar"></i> Bookings
+      </a>
+      <a href="{{ url_for('admin_issues') }}" role="tab"
+         class="seg {% if active_tab == 'issues' %}is-active{% endif %}">
+        <i class="fa-solid fa-screwdriver-wrench"></i> Issues
+      </a>
+    </div>
+
+    <div class="panel table-wrap">
+      {% if active_tab == 'rooms' %}
+        {% include 'admin_rooms_tab.html' %}
+      {% elif active_tab == 'bookings' %}
+        {% include 'admin_bookings_tab.html' %}
+      {% elif active_tab == 'issues' %}
+        {% include 'admin_issues_tab.html' %}
+      {% else %}
+        <p class="empty-state">Pick a tab to see its records.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

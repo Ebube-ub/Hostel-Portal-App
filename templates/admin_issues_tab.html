@@ -1,0 +1,52 @@
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Room</th>
+            <th>Issue</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for issue in issues %}
+        <tr>
+            <td>{{ issue.email }}</td>
+            <td>{{ issue.room_name | replace('Room', 'Room ') if issue.room_name else '-' }}</td>
+            <td class="cell-issue">{{ issue.description[:70] }}{% if issue.description | length > 70 %}&hellip;{% endif %}</td>
+            <td>
+                <span class="badge badge-priority-{{ issue.priority }}">
+                    {{ issue.priority | title }}
+                </span>
+            </td>
+            <td>
+                <span class="badge badge-{{ issue.status }}">
+                    {{ issue.status | replace('_', ' ') | title }}
+                </span>
+            </td>
+            <td class="cell-muted">{{ issue.created_at.strftime('%d %b %Y') if issue.created_at else '-' }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('update_issue_status', issue_id=issue.id) }}" class="inline-form">
+                    <select name="status" class="status-select status-select--sm">
+                        <option value="pending" {% if issue.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="in_progress" {% if issue.status == 'in_progress' %}selected{% endif %}>In progress</option>
+                        <option value="resolved" {% if issue.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                    </select>
+                    <select name="priority" class="status-select status-select--sm">
+                        <option value="low" {% if issue.priority == 'low' %}selected{% endif %}>Low</option>
+                        <option value="medium" {% if issue.priority == 'medium' %}selected{% endif %}>Medium</option>
+                        <option value="high" {% if issue.priority == 'high' %}selected{% endif %}>High</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-xs">Update</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7">No issues reported yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

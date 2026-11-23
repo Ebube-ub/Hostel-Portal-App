@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block body_class %}authpage{% endblock %}
+{% block title %}Sign up &middot; School House{% endblock %}
+
+{% block body %}
+<div class="auth">
+  <div class="auth-card">
+    <span class="brand-mark brand-mark--lg"><i class="fa-solid fa-house-chimney"></i></span>
+    <h1 class="auth-title">Create your account</h1>
+    <p class="auth-sub">Sign up to pick a room and report maintenance issues.</p>
+
+    <form method="POST" action="" class="auth-form">
+      {{ form.hidden_tag() }}
+      <label class="field">
+        <span class="field-label">Email</span>
+        {{ form.email(class_="field-input", placeholder="you@school.edu") }}
+      </label>
+      <label class="field">
+        <span class="field-label">Password</span>
+        {{ form.password(class_="field-input", placeholder="At least 8 characters") }}
+      </label>
+      {{ form.submit(class_="btn btn-primary btn-block") }}
+    </form>
+
+    <p class="auth-alt">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+  </div>
+</div>
+{% endblock %}

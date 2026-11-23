@@ -1,0 +1,83 @@
+<div class="tab-tools">
+    <a class="btn btn-primary btn-sm" href="{{ url_for('admin_new_booking') }}">
+        <i class="fa-solid fa-user-plus"></i> Reserve for a student
+    </a>
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Room</th>
+            <th>Check-in</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td>
+                {{ booking.user.email if booking.user else '-' }}
+                {% if booking.student_name %}
+                <span class="cell-muted cell-block">{{ booking.student_name }}{% if booking.student_id %} &middot; {{ booking.student_id }}{% endif %}</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if booking.status == 'rebooking_pending' and booking.previous_room %}
+                <strong>{{ booking.previous_room | replace('Room', 'Room ') }}</strong>
+                <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                {{ booking.room_name | replace('Room', 'Room ') }}
+                {% else %}
+                <strong>{{ booking.room_name | replace('Room', 'Room ') }}</strong>
+                {% endif %}
+                {% if booking.reason %}
+                <span class="cell-muted cell-block">&ldquo;{{ booking.reason }}&rdquo;</span>
+                {% endif %}
+            </td>
+            <td class="cell-muted">{{ booking.check_in.strftime('%Y-%m-%d %H:%M') if booking.check_in else '-' }}</td>
+            <td>
+                <span class="badge badge-{{ booking.status }}">
+                    {% if booking.status == 'pending' %}Awaiting confirmation
+                    {% elif booking.status == 'awaiting_student' %}Awaiting student
+                    {% elif booking.status == 'rebooking_pending' %}Rebooking request
+                    {% else %}{{ booking.status | title }}{% endif %}
+                </span>
+            </td>
+            <td>
+                {% if booking.status == 'rebooking_pending' %}
+                <div class="row-actions">
+                    <form method="POST" action="{{ url_for('approve_rebooking_admin', booking_id=booking.id) }}" class="inline-form">
+                        <button type="submit" class="btn btn-primary btn-xs" onclick="return confirm('Approve this move? The old room is released and the new one assigned.')">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('reject_rebooking_admin', booking_id=booking.id) }}" class="inline-form">
+                        <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Reject this rebooking request? The student keeps their current room.')">Reject</button>
+                    </form>
+                </div>
+                {% elif booking.status == 'pending' %}
+                <div class="row-actions">
+                    <form method="POST" action="{{ url_for('confirm_booking_admin', booking_id=booking.id) }}" class="inline-form">
+                        <button type="submit" class="btn btn-primary btn-xs">Confirm</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('decline_booking_admin', booking_id=booking.id) }}" class="inline-form">
+                        <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Decline this booking request?')">Decline</button>
+                    </form>
+                </div>
+                {% elif booking.status in ('active', 'awaiting_student') %}
+                <form method="POST" action="{{ url_for('cancel_booking_admin', booking_id=booking.id) }}" class="inline-form">
+                    <button type="submit" class="btn btn-danger btn-xs" onclick="return confirm('Cancel this booking?')">
+                        {{ 'Withdraw' if booking.status == 'awaiting_student' else 'Cancel' }}
+                    </button>
+                </form>
+                {% else %}
+                <span class="cell-muted">&ndash;</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">No bookings yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

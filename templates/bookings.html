@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block body_class %}accountpage{% endblock %}
+{% block title %}My bookings &middot; School House{% endblock %}
+
+{% block body %}
+<div class="page">
+  <div class="shell">
+
+    <div class="page-head">
+      <div>
+        <a href="{{ url_for('index') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to home</a>
+        <h1 class="page-title">My bookings</h1>
+        <p class="page-sub">{{ current_user.email }}</p>
+      </div>
+      <div class="page-actions">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-ghost btn-sm"><i class="fa-solid fa-bed"></i> Choose a room</a>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('admin') }}" class="btn btn-primary btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</a>
+      </div>
+    </div>
+
+    {% if reserved %}
+    <div class="current-card reserved-card">
+      <div class="current-icon"><i class="fa-solid fa-gift"></i></div>
+      <div class="current-body">
+        <p class="current-eyebrow">Reserved for you by the warden</p>
+        <p class="current-title">{{ reserved.room_name | replace('Room', 'Room ') }}</p>
+        <p class="current-meta">
+          {% if reserved.student_name %}Held in the name of {{ reserved.student_name }}{% if reserved.student_id %} &middot; ID {{ reserved.student_id }}{% endif %}. {% endif %}Confirm it to activate your booking.
+        </p>
+      </div>
+      <div class="row-actions">
+        <form method="POST" action="{{ url_for('claim_booking', booking_id=reserved.id) }}">
+          <button type="submit" class="btn btn-primary btn-sm">Confirm booking</button>
+        </form>
+        <form method="POST" action="{{ url_for('decline_reserved_booking', booking_id=reserved.id) }}">
+          <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if active_booking %}
+    <div class="current-card">
+      <div class="current-icon"><i class="fa-solid fa-key"></i></div>
+      <div class="current-body">
+        <p class="current-eyebrow">Your current room</p>
+        <p class="current-title">{{ active_room.display_name if active_room else active_booking.room_name }}</p>
+        <p class="current-meta">
+          {% if active_room %}
+            {{ active_room.room_type | title }} room &middot;
+            {{ active_room.occupied_beds }} of {{ active_room.capacity }} beds taken
+          {% else %}
+            Active booking
+          {% endif %}
+        </p>
+      </div>
+      {% if pending_rebooking %}
+      <form method="POST" action="{{ url_for('withdraw_rebooking') }}">
+        <button type="submit" class="btn btn-danger btn-sm">Withdraw rebooking</button>
+      </form>
+      {% else %}
+      <div class="row-actions">
+        <a href="{{ url_for('request_rebooking') }}" class="btn btn-primary btn-sm">Request rebooking</a>
+        <form method="POST" action="{{ url_for('cancel_selection') }}">
+          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this booking and give up the room?')">Cancel booking</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if pending_rebooking %}
+    <div class="current-card">
+      <div class="current-icon"><i class="fa-solid fa-right-left"></i></div>
+      <div class="current-body">
+        <p class="current-eyebrow">Rebooking request pending</p>
+        <p class="current-title">
+          {{ pending_rebooking.previous_room | replace('Room', 'Room ') }}
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          {{ pending_rebooking.room_name | replace('Room', 'Room ') }}
+        </p>
+        <p class="current-meta">
+          Reason: {{ pending_rebooking.reason }}<br>
+          You keep {{ active_room.display_name if active_room else pending_rebooking.previous_room }} until the warden approves the move.
+        </p>
+      </div>
+    </div>
+    {% endif %}
+    {% elif pending_request %}
+    <div class="current-card">
+      <div class="current-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+      <div class="current-body">
+        <p class="current-eyebrow">{{ 'Reserved for you' if pending_request.status == 'awaiting_student' else 'Awaiting warden confirmation' }}</p>
+        <p class="current-title">{{ pending_request.room_name | replace('Room', 'Room ') }}</p>
+        <p class="current-meta">
+          {% if pending_request.status == 'awaiting_student' %}
+            Confirm the reservation above to make it yours.
+          {% else %}
+            Request sent &mdash; you will get a notification once the warden confirms it.
+          {% endif %}
+        </p>
+      </div>
+      {% if pending_request.status != 'awaiting_student' %}
+      <form method="POST" action="{{ url_for('cancel_selection') }}">
+        <button type="submit" class="btn btn-danger btn-sm">Withdraw request</button>
+      </form>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="current-card current-card--empty">
+      <div class="current-icon"><i class="fa-solid fa-door-closed"></i></div>
+      <div class="current-body">
+        <p class="current-eyebrow">No active booking</p>
+        <p class="current-title">You have not booked a room yet</p>
+        <p class="current-meta">Pick a private room for yourself, or a bed in a shared room.</p>
+      </div>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-sm">Choose a room</a>
+    </div>
+    {% endif %}
+
+    <div class="section-head">
+      <h2 class="section-title">Booking history</h2>
+      <span class="section-note">{{ bookings | length }} record{{ '' if bookings | length == 1 else 's' }}</span>
+    </div>
+
+    {% if bookings %}
+    <div class="panel table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Room</th>
+            <th>Booked on</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+          <tr>
+            <td>
+              {% if booking.status == 'rebooking_pending' and booking.previous_room %}
+              <strong>{{ booking.previous_room | replace('Room', 'Room ') }}</strong>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              {{ booking.room_name | replace('Room', 'Room ') }}
+              {% else %}
+              <strong>{{ booking.room_name | replace('Room', 'Room ') }}</strong>
+              {% endif %}
+            </td>
+            <td>{{ booking.check_in.strftime('%d %b %Y, %H:%M') if booking.check_in else '-' }}</td>
+            <td><span class="badge badge-{{ booking.status }}">{% if booking.status == 'pending' %}Awaiting confirmation{% elif booking.status == 'rebooking_pending' %}Rebooking request{% elif booking.status == 'awaiting_student' %}Awaiting your confirmation{% else %}{{ booking.status | title }}{% endif %}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty-state">No bookings yet. <a href="{{ url_for('dashboard') }}">Choose a room</a> to get started.</p>
+    {% endif %}
+
+    <div class="section-head" id="report-issue">
+      <h2 class="section-title">Report a maintenance issue</h2>
+      {% if can_report_issue and assigned_room %}
+      <span class="section-note">{{ assigned_room.display_name }}</span>
+      {% endif %}
+    </div>
+    <div class="panel panel--pad">
+      {% if can_report_issue %}
+      <form method="POST" action="{{ url_for('bookings') }}" class="issue-form">
+        {{ form.hidden_tag() }}
+        <label class="field">
+          <span class="field-label">What needs fixing?</span>
+          {{ form.complaint(class_="field-input", placeholder="e.g. The shower in my room runs cold") }}
+        </label>
+        {% if assigned_room %}
+        <p class="field-hint">This report is filed against {{ assigned_room.display_name }}, your current room.</p>
+        {% endif %}
+        {{ form.submit(class_="btn btn-primary") }}
+      </form>
+      {% else %}
+      <div class="notice notice--error">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>{{ issue_message }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="section-head">
+      <h2 class="section-title">My reported issues</h2>
+      <span class="section-note">{{ issues | length }} reported</span>
+    </div>
+
+    {% if issues %}
+    <div class="panel table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Room</th>
+            <th>Issue</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Reported</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for issue in issues %}
+          <tr>
+            <td>{{ issue.room_name | replace('Room', 'Room ') if issue.room_name else '-' }}</td>
+            <td>{{ issue.description }}</td>
+            <td><span class="badge badge-priority-{{ issue.priority }}">{{ issue.priority | title }}</span></td>
+            <td><span class="badge badge-{{ issue.status }}">{{ issue.status | replace('_', ' ') | title }}</span></td>
+            <td>{{ issue.created_at.strftime('%d %b %Y') if issue.created_at else '-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty-state">You have not reported any issues yet.</p>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
