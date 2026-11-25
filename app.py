@@ -163,11 +163,13 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Sign Up')
 
     def validate_email(self, email):
-        existing_user_email = User.query.filter_by(email=email.data).first()
-
+        # Compare without stray whitespace and regardless of case, so the same
+        # address cannot be registered twice with a different capitalisation.
+        address = (email.data or '').strip()
+        existing_user_email = User.query.filter(User.email.ilike(address)).first()
 
         if existing_user_email:
-            raise ValidationError('That user already exists. Please choose a different one.')
+            raise ValidationError('That email already has an account. Please log in instead.')
 
 
 class LoginForm(FlaskForm):
@@ -512,13 +514,16 @@ def signup():
 
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        new_user = User(email=form.email.data, password=hashed_password)
+        new_user = User(email=form.email.data.strip(), password=hashed_password)
 
         db.session.add(new_user)
         db.session.commit()
-        flash('Signed Up Successfuly')
-        return redirect(url_for('signup'))
-       
+
+        # Registration does not sign the student in - send them to the login
+        # page with a confirmation so they can log in with what they just set.
+        flash('Your account was created successfully. You can now log in.')
+        return redirect(url_for('login'))
+
     return render_template('signup.html', form=form)
 
 
