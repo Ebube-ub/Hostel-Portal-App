@@ -1,0 +1,44 @@
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Room</th>
+            <th>Bookings</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for account in users %}
+        <tr>
+            <td><strong>{{ account.email }}</strong></td>
+            <td>
+                {% if account.is_admin %}
+                    <span class="badge badge-occupied">Warden</span>
+                {% else %}
+                    <span class="badge badge-available">Student</span>
+                {% endif %}
+            </td>
+            <td class="cell-muted">
+                {% if account.selected_room %}
+                    {{ account.selected_room | replace('Room', 'Room ') }}
+                {% else %}
+                    &ndash;
+                {% endif %}
+            </td>
+            <td class="cell-muted">{{ account.bookings | length }}</td>
+            <td>
+                {% if not account.is_admin %}
+                <form method="POST" action="{{ url_for('make_admin', user_id=account.id) }}" class="inline-form">
+                    <button type="submit" class="btn btn-primary btn-xs">Make warden</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">No accounts yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

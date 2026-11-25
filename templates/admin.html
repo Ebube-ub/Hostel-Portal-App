@@ -82,6 +82,10 @@
          class="seg {% if active_tab == 'issues' %}is-active{% endif %}">
         <i class="fa-solid fa-screwdriver-wrench"></i> Issues
       </a>
+      <a href="{{ url_for('admin_manage_users') }}" role="tab"
+         class="seg {% if active_tab == 'users' %}is-active{% endif %}">
+        <i class="fa-solid fa-users"></i> Accounts
+      </a>
     </div>
 
     <div class="panel table-wrap">
@@ -91,6 +95,8 @@
         {% include 'admin_bookings_tab.html' %}
       {% elif active_tab == 'issues' %}
         {% include 'admin_issues_tab.html' %}
+      {% elif active_tab == 'users' %}
+        {% include 'admin_users_tab.html' %}
       {% else %}
         <p class="empty-state">Pick a tab to see its records.</p>
       {% endif %}

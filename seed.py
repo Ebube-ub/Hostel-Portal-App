@@ -75,6 +75,47 @@ def backfill_room_types():
         print(f"Updated the type and capacity of {changed} rooms.")
 
 
+def ensure_issue_email_not_unique():
+    """Let a student report more than one room issue.
+
+    The first version of the table made email UNIQUE, which silently capped
+    every student at a single report. SQLite bakes UNIQUE into the table
+    definition, so the constraint cannot be dropped in place: rebuild the table
+    and copy the existing reports across.
+    """
+    if "room_issue" not in inspect(db.engine).get_table_names():
+        return False
+
+    ddl = db.session.execute(
+        text("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'room_issue'")
+    ).scalar() or ""
+    if "UNIQUE" not in ddl.upper():
+        return False
+
+    with db.engine.begin() as connection:
+        connection.execute(text(
+            "CREATE TABLE room_issue_rebuilt ("
+            " id INTEGER NOT NULL PRIMARY KEY,"
+            " email VARCHAR(150) NOT NULL,"
+            " room_name VARCHAR(50),"
+            " description VARCHAR(500) NOT NULL,"
+            " status VARCHAR(20),"
+            " priority VARCHAR(20),"
+            " created_at DATETIME,"
+            " resolved_at DATETIME)"
+        ))
+        connection.execute(text(
+            "INSERT INTO room_issue_rebuilt (id, email, room_name, description, status,"
+            " priority, created_at, resolved_at)"
+            " SELECT id, email, room_name, description, status, priority, created_at,"
+            " resolved_at FROM room_issue"
+        ))
+        connection.execute(text("DROP TABLE room_issue"))
+        connection.execute(text("ALTER TABLE room_issue_rebuilt RENAME TO room_issue"))
+
+    return True
+
+
 def refresh_statuses():
     """Recalculate available/occupied from the active bookings."""
     for room in Room.query.all():
@@ -122,6 +163,9 @@ def main():
 
         if ensure_room_columns():
             print("Added the room_type/capacity columns to the room table.")
+
+        if ensure_issue_email_not_unique():
+            print("Rebuilt the issue table so a student can report more than one issue.")
 
         created = create_default_rooms()
         if created:

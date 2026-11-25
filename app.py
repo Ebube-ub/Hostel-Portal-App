@@ -148,7 +148,7 @@ class ComplaintForm(FlaskForm):
 
 class RoomIssue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), unique=True, nullable=False)
+    email = db.Column(db.String(150), nullable=False)  # a student may report many issues
     room_name = db.Column(db.String(50))
     description = db.Column(db.String(500), nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending, in_progress, resolved
@@ -158,7 +158,10 @@ class RoomIssue(db.Model):
 
 
 class RegisterForm(FlaskForm):
-    email = StringField(validators=[InputRequired(), Email(message='Invalid email'), Length(max=150)], render_kw={"placeholder": "Email"})
+    # check_deliverability=False keeps signup working offline: the default
+    # validator resolves the domain's DNS records and calls a failure there
+    # "Invalid email".
+    email = StringField(validators=[InputRequired(), Email(message='Invalid email', check_deliverability=False), Length(max=150)], render_kw={"placeholder": "Email"})
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
     submit = SubmitField('Sign Up')
 
@@ -173,16 +176,9 @@ class RegisterForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    email = StringField(validators=[InputRequired(), Email(message='Invalid email'), Length(max=150)], render_kw={"placeholder": "Email"})
+    email = StringField(validators=[InputRequired(), Email(message='Invalid email', check_deliverability=False), Length(max=150)], render_kw={"placeholder": "Email"})
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=150)], render_kw={"placeholder": "Password"})
     submit = SubmitField('Login')
-
-
-    def validate_email(self, email):
-        existing_user_email = User.query.filter_by(email=email.data).first()
-        if existing_user_email:
-            flash('That user already exists. Please choose a different one.')
-            raise ValidationError('That user already exists. Please choose a different one.')
 
 
 def create_default_rooms():
@@ -403,7 +399,14 @@ def login():
     form = LoginForm()
     error = None
 
-    if request.method == 'POST':
+    if request.method == 'POST' and not form.validate():
+        # Validating the form is what checks the CSRF token. A stale page or a
+        # missing token is the usual reason a good password gets refused, so
+        # name that instead of blaming the credentials.
+        error = ('Your session expired - please reload the page and try again.'
+                 if form.csrf_token.errors else 'Invalid email or password')
+        flash(error)
+    elif request.method == 'POST':
         # Match the email case-insensitively and without stray whitespace, so
         # "Warden@School.edu " still finds the account.
         email = (form.email.data or '').strip()
@@ -681,22 +684,6 @@ def bookings():
                            issue_message=issue_message)
 
 
-@app.route('/admin/users')
-def admin_manage_users():
-    if request.method == 'POST':
-       current_user = request.form['content']
-       new_user = User(content=current_user)
-       try:
-              db.session.add(new_user)
-              db.session.commit()
-              return redirect('/')
-       except Exception as e:
-              print(f"Error adding user: {e}")
-              return f'ERROR: {e}'
-    else:
-        user = User.query.order_by(User.id).all()
-    return render_template('admin.html', user=user)
-
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -715,6 +702,18 @@ def admin_required(f):
         
         return f(*args, **kwargs)
     return decorated_function
+
+
+@app.route('/admin/users')
+@login_required
+@admin_required
+def admin_manage_users():
+    """Every account in the hostel, so the warden can see who is who."""
+    users = User.query.order_by(User.id).all()
+    return render_template('admin.html',
+                           active_tab='users',
+                           users=users,
+                           stats=get_dashboard_stats())
 
 def get_dashboard_stats():
     """Calculate statistics for admin dashboard, counting beds rather than rooms."""
@@ -1128,12 +1127,21 @@ def decline_reserved_booking(booking_id):
     return redirect(url_for('bookings'))
 
 
-@app.route('/make_admin/<int:user_id>')
+@app.route('/make_admin/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
 def make_admin(user_id):
-    role = UserRole(user_id=user_id, role="admin")
-    db.session.add(role)
-    db.session.commit()
-    return "User is now admin"
+    """Promote an existing account to warden from the accounts tab."""
+    user = User.query.get_or_404(user_id)
+
+    if user.is_admin:
+        flash(f'{user.email} is already an administrator.')
+    else:
+        db.session.add(UserRole(user_id=user.id, role='admin'))
+        db.session.commit()
+        flash(f'{user.email} is now an administrator.')
+
+    return redirect(url_for('admin_manage_users'))
 
 
 if __name__ == "__main__":
