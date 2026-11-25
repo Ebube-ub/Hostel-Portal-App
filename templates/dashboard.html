@@ -192,9 +192,17 @@
             </div>
 
             {% if current_user.is_admin %}
+              {% if room.is_available %}
               <a class="btn btn-ghost btn-block" href="{{ url_for('admin_new_booking', room=room.name) }}">
                 Reserve for a student
               </a>
+              {% else %}
+              <button type="button" disabled class="btn btn-block is-disabled">
+                {% if room.status == 'maintenance' %}In maintenance
+                {% elif room.status == 'reserved' %}Reserved
+                {% else %}Full{% endif %}
+              </button>
+              {% endif %}
             {% elif active_booking and active_booking.room_name == room.name %}
               <button type="button" disabled class="btn btn-block is-booked">Your room</button>
             {% elif pending_request %}
