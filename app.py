@@ -1,6 +1,8 @@
+import csv
+import io
 import os
 
-from flask import Flask, render_template, url_for, redirect, request, flash
+from flask import Flask, render_template, url_for, redirect, request, flash, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -14,7 +16,17 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hostel.db'
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'thisisasecretkey')
+
+# The fallback key below is public, so it may only sign development sessions.
+# A deployment that forgets SECRET_KEY has to fail at startup rather than ship
+# with a key anyone can read in the source.
+IS_PRODUCTION = os.environ.get('HOSTEL_ENV', '').strip().lower() in ('production', 'prod')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    if IS_PRODUCTION:
+        raise RuntimeError('SECRET_KEY must be set when HOSTEL_ENV=production.')
+    SECRET_KEY = 'thisisasecretkey'  # development only
+app.config['SECRET_KEY'] = SECRET_KEY
 
 # The preview panel embeds this app in a cross-site iframe. Browsers refuse to
 # send a SameSite=Lax cookie in that context, which makes login look successful
@@ -142,6 +154,16 @@ class Notification(db.Model):
 
     user = db.relationship('User', backref=db.backref('notifications', lazy=True))
 
+class AuditLog(db.Model):
+    """One warden action, so changes to a student's records can be traced."""
+    id = db.Column(db.Integer, primary_key=True)
+    actor_email = db.Column(db.String(150), nullable=False)
+    action = db.Column(db.String(60), nullable=False)
+    target = db.Column(db.String(120))
+    detail = db.Column(db.String(300))
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+
 class ComplaintForm(FlaskForm):
     complaint = StringField(validators=[Length(min=4, max=220)], render_kw={"placeholder": "Any Complaint?"})
     submit = SubmitField('Submit Complaint')
@@ -213,6 +235,18 @@ def notify_admins(message, link=None, kind='info'):
     """Every account holding the admin role hears about it."""
     for role in UserRole.query.filter_by(role='admin').all():
         notify(role.user_id, message, link, kind)
+
+
+def log_admin_action(action, target=None, detail=None):
+    """Queue one audit entry for the signed-in warden.
+
+    Added to the session rather than committed so the record lands in the same
+    transaction as the change it describes.
+    """
+    if not current_user.is_authenticated:
+        return
+    db.session.add(AuditLog(actor_email=current_user.email, action=action,
+                            target=target, detail=detail))
 
 
 def room_label(name):
@@ -704,17 +738,6 @@ def admin_required(f):
     return decorated_function
 
 
-@app.route('/admin/users')
-@login_required
-@admin_required
-def admin_manage_users():
-    """Every account in the hostel, so the warden can see who is who."""
-    users = User.query.order_by(User.id).all()
-    return render_template('admin.html',
-                           active_tab='users',
-                           users=users,
-                           stats=get_dashboard_stats())
-
 def get_dashboard_stats():
     """Calculate statistics for admin dashboard, counting beds rather than rooms."""
     rooms = Room.query.all()
@@ -740,6 +763,52 @@ def get_dashboard_stats():
         'active_bookings': Booking.query.filter_by(status='active').count(),
         'pending_issues': RoomIssue.query.filter_by(status='pending').count()
     }
+
+
+@app.route('/admin/users')
+@login_required
+@admin_required
+def admin_manage_users():
+    """Every account in the hostel, so the warden can see who is who."""
+    users = User.query.order_by(User.id).all()
+    return render_template('admin.html',
+                           active_tab='users',
+                           users=users,
+                           stats=get_dashboard_stats())
+
+
+@app.route('/admin/audit')
+@login_required
+@admin_required
+def admin_audit():
+    """Newest first: what wardens changed and when."""
+    entries = (AuditLog.query.order_by(AuditLog.created_at.desc(), AuditLog.id.desc())
+               .limit(200).all())
+    return render_template('admin.html',
+                           active_tab='audit',
+                           audit_entries=entries,
+                           stats=get_dashboard_stats())
+
+
+@app.route('/admin/export/occupancy.csv')
+@login_required
+@admin_required
+def export_occupancy():
+    """Download one row per room, for reporting outside the portal."""
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(['Room', 'Type', 'Beds', 'Occupied beds', 'Free beds',
+                     'Status', 'Occupants'])
+    for room in Room.query.order_by(Room.name).all():
+        occupants = [booking.user.email for booking in room.active_bookings
+                     if booking.user is not None]
+        writer.writerow([room.display_name, room.room_type, room.capacity,
+                         room.occupied_beds, room.free_beds, room.status,
+                         '; '.join(occupants)])
+    return Response(
+        buffer.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=occupancy.csv'})
 
 
 @app.route('/admin')
@@ -780,6 +849,10 @@ def update_room_status(room_id):
 
         db.session.flush()
         refresh_room_status(room)
+        note = f'Set to {new_status}'
+        if new_status == 'maintenance':
+            note += '; residents moved out'
+        log_admin_action('room.status', room.display_name, note)
         db.session.commit()
         flash(f'Room {room.name} status updated to {room.status}')
     
@@ -819,6 +892,8 @@ def cancel_booking_admin(booking_id):
         label = room.display_name if room else booking.room_name
         notify(user.id, f'Your booking for {label} was cancelled by the warden',
                link=url_for('bookings'), kind='booking')
+    log_admin_action('booking.cancel', booking.room_name,
+                     f'Booking #{booking.id} for {user.email if user else "an unknown account"}')
     db.session.commit()
     flash(f'Booking cancelled for {booking.room_name}')
     return redirect(url_for('admin_bookings'))
@@ -843,6 +918,11 @@ def update_issue_status(issue_id):
     new_priority = request.form.get('priority')
     
     was_resolved = issue.status == 'resolved'
+    changes = []
+    if new_status and new_status != issue.status:
+        changes.append(f'status {issue.status} -> {new_status}')
+    if new_priority and new_priority != issue.priority:
+        changes.append(f'priority {issue.priority} -> {new_priority}')
     if new_status:
         issue.status = new_status
         if new_status == 'resolved' and not was_resolved:
@@ -855,7 +935,11 @@ def update_issue_status(issue_id):
     
     if new_priority:
         issue.priority = new_priority
-    
+
+    if changes:
+        log_admin_action('issue.update', f'Issue #{issue.id}',
+                         f'{issue.email}: ' + ', '.join(changes))
+
     db.session.commit()
     flash('Issue updated successfully')
     return redirect(url_for('admin_issues'))
@@ -910,6 +994,9 @@ def confirm_booking_admin(booking_id):
         refresh_room_status(room)
     notify(booking.user_id, f'Your booking for {label} is confirmed',
            link=url_for('bookings'), kind='booking')
+    log_admin_action('booking.confirm', room.name if room else booking.room_name,
+                     f'Booking #{booking.id} for '
+                     f'{booking.user.email if booking.user else "an unknown account"}')
     db.session.commit()
     flash(f'Booking confirmed for {booking.room_name}')
     return redirect(url_for('admin_bookings'))
@@ -935,6 +1022,9 @@ def decline_booking_admin(booking_id):
     label = room.display_name if room else booking.room_name
     notify(booking.user_id, f'Your booking request for {label} was declined',
            link=url_for('bookings'), kind='booking')
+    log_admin_action('booking.decline', room.name if room else booking.room_name,
+                     f'Booking #{booking.id} for '
+                     f'{booking.user.email if booking.user else "an unknown account"}')
     db.session.commit()
     flash(f'Booking declined for {booking.room_name}')
     return redirect(url_for('admin_bookings'))
@@ -977,6 +1067,9 @@ def approve_rebooking_admin(booking_id):
     notify(req.user_id,
            f'Your rebooking was approved - {room.display_name} is now your room',
            link=url_for('bookings'), kind='booking')
+    log_admin_action('rebooking.approve', room.display_name,
+                     f'{student.email if student else "Student"} moved from '
+                     f'{room_label(previous)}')
     db.session.commit()
     flash(f'{room.display_name} assigned - {room_label(previous)} is free again')
     return redirect(url_for('admin_bookings'))
@@ -996,6 +1089,8 @@ def reject_rebooking_admin(booking_id):
     kept = room_label(student.selected_room if student else None)
     notify(req.user_id, f'Your rebooking request was rejected - you keep {kept}',
            link=url_for('bookings'), kind='booking')
+    log_admin_action('rebooking.reject', kept,
+                     f'{student.email if student else "Student"} keeps {kept}')
     db.session.commit()
     flash(f'Rebooking request rejected - the student keeps {kept}')
     return redirect(url_for('admin_bookings'))
@@ -1059,6 +1154,8 @@ def admin_new_booking():
             db.session.flush()
             refresh_room_status(room)
             db.session.commit()
+            log_admin_action('booking.reserve', room.display_name,
+                             f'Reserved for {student.email} until they confirm')
             flash(f'{room.display_name} reserved for {form["name"]} until they confirm')
             return redirect(url_for('admin_bookings'))
 
@@ -1138,6 +1235,7 @@ def make_admin(user_id):
         flash(f'{user.email} is already an administrator.')
     else:
         db.session.add(UserRole(user_id=user.id, role='admin'))
+        log_admin_action('account.promote', user.email, 'Granted the warden role')
         db.session.commit()
         flash(f'{user.email} is now an administrator.')
 
@@ -1149,4 +1247,6 @@ if __name__ == "__main__":
         db.create_all()
         create_default_rooms()
 
-    app.run(debug=True)
+    # Debug mode exposes the Werkzeug console, so it is opt-in rather than the
+    # default way this app starts.
+    app.run(debug=os.environ.get('FLASK_DEBUG') == '1')

@@ -1,0 +1,26 @@
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>When</th>
+            <th>Warden</th>
+            <th>Action</th>
+            <th>Target</th>
+            <th>Detail</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in audit_entries %}
+        <tr>
+            <td class="cell-muted">{{ entry.created_at.strftime('%d %b %Y %H:%M') if entry.created_at else '-' }}</td>
+            <td>{{ entry.actor_email }}</td>
+            <td><span class="badge badge-available">{{ entry.action | replace('.', ' ') | title }}</span></td>
+            <td>{{ entry.target or '-' }}</td>
+            <td class="cell-muted">{{ entry.detail or '-' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">No warden actions recorded yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

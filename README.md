@@ -60,9 +60,11 @@ python -c "import sass; open('static/css/main.css','w').write(sass.compile(filen
 
 ## Configuration
 
-| Setting      | Default                       | Notes                                  |
-| ------------ | ----------------------------- | -------------------------------------- |
-| `SECRET_KEY` | development fallback          | Set this to a random value in any real deployment |
+| Setting       | Default              | Notes                                                  |
+| ------------- | -------------------- | ------------------------------------------------------ |
+| `SECRET_KEY`  | development fallback | Required when `HOSTEL_ENV=production`; set a random value |
+| `HOSTEL_ENV`  | unset                | `production` makes a missing `SECRET_KEY` stop startup |
+| `FLASK_DEBUG` | unset                | `python app.py` only enables the debugger when this is `1` |
 
 ```bash
 SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')" flask --app app run
